@@ -22,6 +22,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.security.GeneralSecurityException;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 public class GoogleCalendar {
@@ -60,33 +61,64 @@ public class GoogleCalendar {
         return new AuthorizationCodeInstalledApp(flow, receiver).authorize("user");
     }
 
-    public GoogleCalendar() throws IOException, GeneralSecurityException {
+    private Calendar getCalendar() throws IOException, GeneralSecurityException {
         // Build a new authorized API client service.
         final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
         Calendar service = new Calendar.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT))
                 .setApplicationName(APPLICATION_NAME)
                 .build();
+        return service;
+    }
 
+    public GoogleCalendar() {
+    }
+
+    public GoogleEvent getEventOnDay(Date day) throws IOException, GeneralSecurityException{
+
+        Date dateEnd = new Date(day.getTime());
+        dateEnd.setHours(23);
+        dateEnd.setMinutes(59);
+        dateEnd.setSeconds(59);
+        DateTime dayEnd = new DateTime(dateEnd);
+        DateTime dayStart = new DateTime(day);
         // List the next 10 events from the primary calendar.
+        long timemillis = System.currentTimeMillis();
         DateTime now = new DateTime(System.currentTimeMillis());
+        Calendar service = getCalendar();
+
         Events events = service.events().list("primary")
-                .setMaxResults(10)
-                .setTimeMin(now)
+                .setTimeMin(dayStart)
+                .setTimeMax(dayEnd)
                 .setOrderBy("startTime")
                 .setSingleEvents(true)
                 .execute();
         List<Event> items = events.getItems();
+
         if (items.isEmpty()) {
-            System.out.println("No upcoming events found.");
+            System.out.println("No upcoming events On your Day.");
         } else {
-            System.out.println("Upcoming events");
+            System.out.println("Upcoming events:");
             for (Event event : items) {
                 DateTime start = event.getStart().getDateTime();
                 if (start == null) {
                     start = event.getStart().getDate();
                 }
-                System.out.printf("%s (%s)\n", event.getSummary(), start);
+                DateTime end = event.getEnd().getDateTime();
+                if (start == null) {
+                        end = event.getEnd().getDate();
+                    }
+                Date startDate = new Date((start.getValue()));
+                Date endDate = new Date((end.getValue()));
+                System.out.println( "--------------------------");
+                System.out.println( "Header: " + event.getSummary());
+                System.out.println( "Datum: " + startDate.getDate() + "." + (startDate.getMonth()+1) + "." + (startDate.getYear()-100));
+                System.out.println( "Start: " + startDate.getHours() + ":" + startDate.getMinutes() + " Ende: " + endDate.getHours() + ":" + endDate.getMinutes());
+
+                System.out.println( "Description: " + event.getDescription());
+
+
             }
         }
+        return null;
     }
 }

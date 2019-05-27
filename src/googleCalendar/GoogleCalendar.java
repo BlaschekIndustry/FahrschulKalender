@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.security.GeneralSecurityException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -45,7 +46,7 @@ public class GoogleCalendar {
      */
     private static Credential getCredentials(final NetHttpTransport HTTP_TRANSPORT) throws IOException {
         // Load client secrets.
-        InputStream in = CalendarQuickstart.class.getResourceAsStream(CREDENTIALS_FILE_PATH);
+        InputStream in = GoogleCalendar.class.getResourceAsStream(CREDENTIALS_FILE_PATH);
         if (in == null) {
             throw new FileNotFoundException("Resource not found: " + CREDENTIALS_FILE_PATH);
         }
@@ -73,19 +74,19 @@ public class GoogleCalendar {
     public GoogleCalendar() {
     }
 
-    public GoogleEvent getEventOnDay(Date day) throws IOException, GeneralSecurityException{
+    public ArrayList<GoogleEvent> getEvents(Date startDay) throws IOException, GeneralSecurityException {
+        return getEvents(startDay, 0);
+    }
 
-        Date dateEnd = new Date(day.getTime());
-        dateEnd.setHours(23);
-        dateEnd.setMinutes(59);
-        dateEnd.setSeconds(59);
-        DateTime dayEnd = new DateTime(dateEnd);
-        DateTime dayStart = new DateTime(day);
-        // List the next 10 events from the primary calendar.
-        long timemillis = System.currentTimeMillis();
-        DateTime now = new DateTime(System.currentTimeMillis());
+    public ArrayList<GoogleEvent> getEvents(Date startDay, int dayPeriod) throws IOException, GeneralSecurityException{
+
+        //Gets the Start of the Day
+        DateTime dayStart = new DateTime(CalendarHelper.getStartOfTheDay(startDay));
+
+        //Get the End of the Day after the Period (0 is the same Day)
+        DateTime dayEnd = new DateTime(CalendarHelper.getEndOfTheDay(CalendarHelper.getDateAfterDayPeriode(startDay, dayPeriod)));
+
         Calendar service = getCalendar();
-
         Events events = service.events().list("primary")
                 .setTimeMin(dayStart)
                 .setTimeMax(dayEnd)
@@ -93,32 +94,11 @@ public class GoogleCalendar {
                 .setSingleEvents(true)
                 .execute();
         List<Event> items = events.getItems();
+        ArrayList<GoogleEvent> list = new ArrayList<>();
 
-        if (items.isEmpty()) {
-            System.out.println("No upcoming events On your Day.");
-        } else {
-            System.out.println("Upcoming events:");
-            for (Event event : items) {
-                DateTime start = event.getStart().getDateTime();
-                if (start == null) {
-                    start = event.getStart().getDate();
-                }
-                DateTime end = event.getEnd().getDateTime();
-                if (start == null) {
-                        end = event.getEnd().getDate();
-                    }
-                Date startDate = new Date((start.getValue()));
-                Date endDate = new Date((end.getValue()));
-                System.out.println( "--------------------------");
-                System.out.println( "Header: " + event.getSummary());
-                System.out.println( "Datum: " + startDate.getDate() + "." + (startDate.getMonth()+1) + "." + (startDate.getYear()-100));
-                System.out.println( "Start: " + startDate.getHours() + ":" + startDate.getMinutes() + " Ende: " + endDate.getHours() + ":" + endDate.getMinutes());
-
-                System.out.println( "Description: " + event.getDescription());
-
-
-            }
+        for (Event event : items) {
+            list.add(new GoogleEvent(event));
         }
-        return null;
+        return list;
     }
 }

@@ -11,10 +11,7 @@ public class MainTest {
         GoogleCalendar test = new GoogleCalendar();
 
         Date date = new Date(System.currentTimeMillis());
-        date.setHours(0);
-        date.setMinutes(0);
-        date.setSeconds(0);
+        test.getEvents(date, 2);
 
-        test.getEventOnDay(date);
     }
 }

@@ -27,4 +27,11 @@ public class GoogleEvent {
         }
         this.endDate = new Date((end.getValue()));
     }
+
+    @Override
+    public String toString(){
+        return "header: " + header + "\n" +
+                "von:" + startDate.toString() + " bis: " +endDate.toString() + "\n" +
+                "Beschreibung: " + description;
+    }
 }

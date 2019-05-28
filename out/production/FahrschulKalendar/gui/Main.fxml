@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.ContextMenu?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+
+<BorderPane fx:id="borderPane" minHeight="290.0" minWidth="345.0" prefHeight="290.0" prefWidth="345.0" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gui.ControllerMain">
+   <left>
+      <AnchorPane prefHeight="186.0" prefWidth="175.0" BorderPane.alignment="CENTER">
+         <children>
+            <Button fx:id="newDrivingLesson" layoutX="15.0" layoutY="2.0" mnemonicParsing="false" onAction="#handleOpenNewDrivingLesson" prefHeight="25.0" prefWidth="150.0" text="Neue Fahrstunde" />
+            <Button fx:id="otherTermin" layoutX="15.0" layoutY="34.0" mnemonicParsing="false" onAction="#handleCreateOtherTermin" prefWidth="150.0" text="Sonstiger Termin" />
+            <Button fx:id="settings" layoutX="14.0" layoutY="65.0" mnemonicParsing="false" onAction="#handleOpenSettings" prefWidth="150.0" text="Einstellungen" />
+         </children>
+      </AnchorPane>
+   </left>
+   <bottom>
+      <AnchorPane prefHeight="46.0" prefWidth="303.0" BorderPane.alignment="CENTER">
+         <children>
+            <Button fx:id="cancelButton" layoutX="253.0" layoutY="11.0" mnemonicParsing="false" onAction="#handleCancel" prefHeight="25.0" prefWidth="78.0" text="Beenden" />
+         </children>
+      </AnchorPane>
+   </bottom>
+   <top>
+      <AnchorPane maxWidth="348.0" prefHeight="56.0" prefWidth="348.0" BorderPane.alignment="CENTER">
+         <children>
+            <Label layoutX="93.0" layoutY="20.0" text="Benutzer:" />
+            <ComboBox fx:id="userComboBox" layoutX="155.0" layoutY="16.0" prefHeight="25.0" prefWidth="176.0" />
+         </children>
+      </AnchorPane>
+   </top>
+   <center>
+      <ListView fx:id="undoListView" prefHeight="171.0" prefWidth="140.0" BorderPane.alignment="CENTER">
+         <contextMenu>
+            <ContextMenu>
+              <items>
+                <MenuItem mnemonicParsing="false" text="Rückgängig machen" />
+              </items>
+            </ContextMenu>
+         </contextMenu>
+      </ListView>
+   </center>
+   <right>
+      <AnchorPane prefHeight="265.0" prefWidth="14.0" BorderPane.alignment="CENTER" />
+   </right>
+</BorderPane>

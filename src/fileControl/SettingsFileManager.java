@@ -55,7 +55,7 @@ public class SettingsFileManager extends FileReadWriteManager{
 
 
     public void readDrivingTeachers(){
-
+        drivingTeachers.clear();
         NodeList nList = document.getElementsByTagName(DrivingTeacher.XML_TEACHER_IDENT);
         if(nList == null)
             return;
@@ -63,20 +63,37 @@ public class SettingsFileManager extends FileReadWriteManager{
             Node nNode = nList.item(i);
             if (nNode.getNodeType() == Node.ELEMENT_NODE) {
                 Element eElement = (Element) nNode;
-                //Read Name
-                String name = eElement.getElementsByTagName(DrivingTeacher.XML_TEACHER_NAME_IDENT).item(0).getTextContent();
+
+                Node nodeName = eElement.getElementsByTagName(DrivingTeacher.XML_TEACHER_NAME_IDENT).item(0);
+                Node nodeWorkingHours = eElement.getElementsByTagName(DrivingTeacher.XML_TEACHER_WORKINGHOURS_IDENT).item(0);
+
+                if(nodeName == null || nodeWorkingHours == null){
+                    //Todo Error "Fehler beim Lesen eines Fahrlehrers"
+                    continue;
+                }
+
+                //Read name
+                String name = nodeName.getTextContent();
+
                 //Read the weakly working hours
-                int workingHours = Integer.parseInt(eElement.getElementsByTagName(DrivingTeacher.XML_TEACHER_WORKINGHOURS_IDENT).item(0).getTextContent());
+                int workingHours = Integer.parseInt(nodeWorkingHours.getTextContent());;
 
                 //Read the Licences
-                NodeList nLicenceList = eElement.getElementsByTagName(DrivingTeacher.XML_TEACHER_LICENCETYPE_IDENT);
                 ArrayList<LicenceType> licenceTypes = new ArrayList<>();
+
+                NodeList nLicenceList = eElement.getElementsByTagName(DrivingTeacher.XML_TEACHER_LICENCETYPE_IDENT);
                 for(int a = 0; a < nLicenceList.getLength(); a++){
-                    //TODO add all the licence types
                     Node nLicenceNode = nLicenceList.item(a);
                     Element eLicenceElement = (Element) nLicenceNode;
-
+                    String strLicence = eLicenceElement.getTextContent();
+                    LicenceType type = LicenceType.TypeOfXMLName(strLicence);
+                    if(type == null) {
+                        //Todo Error "Fehler beim Lesen der Fahrlehrer"
+                        continue;
+                    }
+                    licenceTypes.add(type);
                 }
+
                 DrivingTeacher newTeacher = new DrivingTeacher(name, workingHours, licenceTypes);
                 drivingTeachers.add(newTeacher);
             }
@@ -134,12 +151,13 @@ public class SettingsFileManager extends FileReadWriteManager{
             drivingTeacherWorkingHours.appendChild(document.createTextNode(Integer.toString(teacher.getWorkingHours())));
             drivingTeacher.appendChild(drivingTeacherWorkingHours);
 
-            Element drivingTeacherLicence = document.createElement(DrivingTeacher.XML_TEACHER_LICENCETYPE_IDENT);
             for(int a = 0; a < teacher.getLicenceTypes().size(); a++){
+                Element drivingTeacherLicence = document.createElement(DrivingTeacher.XML_TEACHER_LICENCETYPE_IDENT);
                 LicenceType licenceType = teacher.getLicenceTypes().get(a);
                 drivingTeacherLicence.appendChild(document.createTextNode(LicenceType.XMLNameOfType(licenceType)));
+                drivingTeacher.appendChild(drivingTeacherLicence);
             }
-            drivingTeacher.appendChild(drivingTeacherLicence);
+
         }
     }
 

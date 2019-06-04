@@ -12,10 +12,17 @@ public class DrivingTeacher {
     private int workingHours;
     private ArrayList<LicenceType> licenceTypes;
 
+    public DrivingTeacher(){
+        this("", 38, null);
+        licenceTypes = new ArrayList<>();
+        licenceTypes.add(LicenceType.LICENCE_TYPE_B);
+    }
+
     public DrivingTeacher(String name, int workingHours, ArrayList<LicenceType> licenceTypes) {
         this.name = name;
         this.workingHours = workingHours;
-        this.licenceTypes = licenceTypes;
+        if(licenceTypes != null)
+            this.licenceTypes = licenceTypes;
     }
 
     public void setName(String name) {

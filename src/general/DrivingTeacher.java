@@ -13,7 +13,7 @@ public class DrivingTeacher {
     private ArrayList<LicenceType> licenceTypes;
 
     public DrivingTeacher(){
-        this("", 38, null);
+        this("Neuer Fahrlehrer", 38, null);
         licenceTypes = new ArrayList<>();
         licenceTypes.add(LicenceType.LICENCE_TYPE_B);
     }

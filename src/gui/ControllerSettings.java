@@ -35,7 +35,6 @@ public class ControllerSettings implements Initializable {
     @FXML CheckBox drivingTeacherLicence_D;
     @FXML MenuItem drivingTeacherMenuItemEdit;
     @FXML MenuItem drivingTeacherMenuItemDelete;
-    ArrayList<DrivingTeacher> drivingTeachers;
 
     //User Dialog Fields
     @FXML Tab userTab;
@@ -194,7 +193,7 @@ public class ControllerSettings implements Initializable {
 //-----------------------------------------//
     //Initialize all Dialog Listeners and Dialog items
     private void initDrivingTeacherTab(){
-        drivingTeachers = fileManager.getDrivingTeachers();
+        ArrayList<DrivingTeacher> drivingTeachers = fileManager.getDrivingTeachers();
 
         //DrivingTeacher Listeners
         drivingTeacherListView.getSelectionModel().selectedItemProperty().addListener(observable -> handleChangeListViewSell());
@@ -218,6 +217,7 @@ public class ControllerSettings implements Initializable {
     //Refreshs the ListView of the Driving Teachers Tab
     private void refreshDrivingTeacherListView(){
         drivingTeacherListView.getItems().clear();
+        ArrayList<DrivingTeacher> drivingTeachers = fileManager.getDrivingTeachers();
         IntStream.range(0, drivingTeachers.size()).forEach(i -> drivingTeacherListView.getItems().add(drivingTeachers.get(i).getName()));
 
         //Edit and Delete Menu of the ComboBox Enablen/Disablen
@@ -234,6 +234,7 @@ public class ControllerSettings implements Initializable {
         if(reloadFile)
             fileManager.readDrivingTeachers();
 
+        ArrayList<DrivingTeacher> drivingTeachers = fileManager.getDrivingTeachers();
         DrivingTeacher currentTeacher = drivingTeachers.get(drivingTeacherListView.getSelectionModel().getSelectedIndex());
 
         //Write data in the Dialoge
@@ -307,6 +308,7 @@ public class ControllerSettings implements Initializable {
             if(!checkDrivingTeachersInputData()) {
                 return false;
             }
+            ArrayList<DrivingTeacher> drivingTeachers = fileManager.getDrivingTeachers();
             int selIndex = drivingTeacherListView.getSelectionModel().getSelectedIndex();
             DrivingTeacher currentTeacher = drivingTeachers.get(selIndex);
 
@@ -345,6 +347,7 @@ public class ControllerSettings implements Initializable {
         fileManager.readDrivingTeachers();
         refreshCurrentListView();
 
+        ArrayList<DrivingTeacher> drivingTeachers = fileManager.getDrivingTeachers();
         DrivingTeacher newDrivingTeacher = new DrivingTeacher();
         drivingTeachers.add(newDrivingTeacher);
 
@@ -384,7 +387,8 @@ public class ControllerSettings implements Initializable {
         if (result.get() == buttonTypeYes) {
             fileManager.getDrivingTeachers().remove(drivingTeacherListView.getSelectionModel().getSelectedIndex());
             fileManager.write();
-            refreshDrivingTeacherListView();
+            endEditMode(true);
+            refreshCurrentListView();
         }
     }
 //-----------------------------------------//

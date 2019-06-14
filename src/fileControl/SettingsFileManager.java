@@ -1,9 +1,6 @@
 package fileControl;
 
-import general.DrivingTeacher;
-import general.LicenceType;
-import general.User;
-import general.Vehicle;
+import general.*;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -20,9 +17,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class SettingsFileManager extends FileReadWriteManager{
-    private ArrayList<DrivingTeacher> drivingTeachers;
-    private ArrayList<User> users;
-    private ArrayList<Vehicle> vehicles;
+    private ArrayList<DrivingTeacher> drivingTeachers = new ArrayList<>();
+    private ArrayList<User> users = new ArrayList<>();;
+    private ArrayList<Vehicle> vehicles = new ArrayList<>();;
+
 
     public SettingsFileManager(String fileName) {
         super(fileName);
@@ -32,24 +30,22 @@ public class SettingsFileManager extends FileReadWriteManager{
     public void read() {
         try {
             File inputFile = new File(fileName);
-            if (!inputFile.exists())
-                return;
-            document = dBuilder.parse(inputFile);
-            document.getDocumentElement().normalize();
+            if (!inputFile.exists()) {
+                ErrorDialogs.showErrorMessage("Das Einstellungsdokument: \"" + fileName + "\" existiert nicht!");
+
+            }else {
+                document = dBuilder.parse(inputFile);
+                document.getDocumentElement().normalize();
+            }
 
         } catch (SAXException e) {
-            System.out.println("Fehler beim Lesen der Datei");
-            return;
+            ErrorDialogs.showErrorMessage("Fehler beim Lesen der Datei");
         } catch (IOException e) {
-            System.out.println("Fehler beim Lesen der Datei");
-            return;
+            ErrorDialogs.showErrorMessage("Fehler beim Lesen der Datei");
         }
 
-        drivingTeachers = new ArrayList<>();
-        users = new ArrayList<>();
-        vehicles = new ArrayList<>();
         readDrivingTeachers();
-        //TODO read Users
+        readUsers();
         //TODO read Vehicles
     }
 
@@ -68,7 +64,7 @@ public class SettingsFileManager extends FileReadWriteManager{
                 Node nodeWorkingHours = eElement.getElementsByTagName(DrivingTeacher.XML_TEACHER_WORKINGHOURS_IDENT).item(0);
 
                 if(nodeName == null || nodeWorkingHours == null){
-                    //Todo Error "Fehler beim Lesen eines Fahrlehrers"
+                    ErrorDialogs.showErrorMessage("Fehler beimn Lesen der Fahrlehrer!");
                     continue;
                 }
 
@@ -76,8 +72,14 @@ public class SettingsFileManager extends FileReadWriteManager{
                 String name = nodeName.getTextContent();
 
                 //Read the weakly working hours
-                int workingHours = Integer.parseInt(nodeWorkingHours.getTextContent());;
-
+                String workingHoursString = nodeWorkingHours.getTextContent();
+                int workingHours = 0;
+                try {
+                    workingHours = Integer.parseInt(nodeWorkingHours.getTextContent());
+                }catch (Exception e){
+                    ErrorDialogs.showErrorMessage("Fehler beimn Lesen der Wochenstunden des Fahrlehrers: " + name);
+                    continue;
+                }
                 //Read the Licences
                 ArrayList<LicenceType> licenceTypes = new ArrayList<>();
 
@@ -88,7 +90,7 @@ public class SettingsFileManager extends FileReadWriteManager{
                     String strLicence = eLicenceElement.getTextContent();
                     LicenceType type = LicenceType.TypeOfXMLName(strLicence);
                     if(type == null) {
-                        //Todo Error "Fehler beim Lesen der Fahrlehrer"
+                        ErrorDialogs.showErrorMessage("Fehler beimn Lesen der Lizenzen des Fahrlehrers: " + name);
                         continue;
                     }
                     licenceTypes.add(type);
@@ -100,15 +102,57 @@ public class SettingsFileManager extends FileReadWriteManager{
         }
     }
 
+    public void readUsers(){
+        users.clear();
+        NodeList nList = document.getElementsByTagName(User.XML_USERR_IDENT);
+        if(nList == null)
+            return;
+        for(int i = 0; i < nList.getLength(); i++){
+            Node nNode = nList.item(i);
+            if (nNode.getNodeType() == Node.ELEMENT_NODE) {
+                Element eElement = (Element) nNode;
+
+                Node nodeName = eElement.getElementsByTagName(User.XML_USER_NAME_IDENT).item(0);
+                Node nodeEditVehicles = eElement.getElementsByTagName(User.XML_USER_ALLOW_EDIT_VEHICLES).item(0);
+                Node nodeEditTeachers = eElement.getElementsByTagName(User.XML_USER_ALLOW_EDIT_TEACHERS).item(0);
+                Node nodeEditUsers = eElement.getElementsByTagName(User.XML_USER_ALLOW_EDIT_USERS).item(0);
+                Node nodeInsertOtherEvents = eElement.getElementsByTagName(User.XML_USER_ALLOW_INSERT_OTHER_EVENTS).item(0);
+
+                if(nodeName == null || nodeEditVehicles == null || nodeEditTeachers == null || nodeEditUsers == null || nodeInsertOtherEvents == null){
+                    ErrorDialogs.showErrorMessage("Fehler beimn Lesen der Benutzer");
+                    continue;
+                }
+
+                //Read Strings from Nodes
+                String name = nodeName.getTextContent();
+                String editVehiclesText = nodeEditVehicles.getTextContent();
+                String editTeachersText = nodeEditTeachers.getTextContent();
+                String editUsersText    = nodeEditUsers.getTextContent();
+                String insertOtherEventsText  = nodeInsertOtherEvents.getTextContent();
+
+                boolean editVehicles = false;
+                boolean editTeachers = false;
+                boolean editUsers = false;
+                boolean insertOtherEvents = false;
+
+                if(editVehiclesText.equals("1"))
+                    editVehicles = true;
+                if(editTeachersText.equals("1"))
+                    editTeachers = true;
+                if(editUsersText.equals("1"))
+                    editUsers = true;
+                if(insertOtherEventsText.equals("1"))
+                    insertOtherEvents = true;
+
+
+                User newUser = new User(name, editVehicles, editTeachers, editUsers, insertOtherEvents);
+                users.add(newUser);
+            }
+        }
+    }
+
     @Override
     public void write() {
-        if(drivingTeachers == null)
-            drivingTeachers = new ArrayList<>();
-        if(users == null)
-            users = new ArrayList<>();
-        if(vehicles == null)
-            vehicles = new ArrayList<>();
-
         document = dBuilder.newDocument();
 
         // root element
@@ -116,7 +160,7 @@ public class SettingsFileManager extends FileReadWriteManager{
         document.appendChild(rootElement);
 
         writeDrivingTeachers(rootElement);
-        //TODO write Users
+        writeUsers(rootElement);
         //TODO write Vehicles
         try {
             TransformerFactory transformerFactory = TransformerFactory.newInstance();
@@ -126,8 +170,10 @@ public class SettingsFileManager extends FileReadWriteManager{
             transformer.transform(source, result);
 
         }catch (TransformerConfigurationException e) {
+            ErrorDialogs.showErrorMessage("Fehler beim schreiben der Datei:\"" + fileName + "\"");
             e.printStackTrace();
         } catch (TransformerException e) {
+            ErrorDialogs.showErrorMessage("Fehler beim schreiben der Datei:\"" + fileName + "\"");
             e.printStackTrace();
         }
     }
@@ -161,25 +207,51 @@ public class SettingsFileManager extends FileReadWriteManager{
         }
     }
 
-    public ArrayList<DrivingTeacher> getDrivingTeachers() {
-        if(drivingTeachers == null)
-            drivingTeachers = new ArrayList<>();
+    private void writeUsers(Element rootElement){
+        // supercars element
+        Element userTeachersGroup = document.createElement(User.XML_USER_GROUP_IDENT);
+        rootElement.appendChild(userTeachersGroup);
 
+        for(int i = 0; i < users.size(); i++){
+            User user = users.get(i);
+
+            Element userEl = document.createElement(User.XML_USERR_IDENT);
+            userTeachersGroup.appendChild(userEl);
+
+            Element userName = document.createElement(User.XML_USER_NAME_IDENT);
+            userName.appendChild(document.createTextNode(user.getName()));
+            userEl.appendChild(userName);
+
+            Element userAllowEditVehicles = document.createElement(User.XML_USER_ALLOW_EDIT_VEHICLES);
+            userAllowEditVehicles.appendChild(document.createTextNode(user.canEditVehicles() ? "1" : "0"));
+            userEl.appendChild(userAllowEditVehicles);
+
+            Element userAllowEditTeachers = document.createElement(User.XML_USER_ALLOW_EDIT_TEACHERS);
+            userAllowEditTeachers.appendChild(document.createTextNode(user.canEditTeachers() ? "1" : "0"));
+            userEl.appendChild(userAllowEditTeachers);
+
+            Element userAllowEditUsers = document.createElement(User.XML_USER_ALLOW_EDIT_USERS);
+            userAllowEditUsers.appendChild(document.createTextNode(user.canEditUsers() ? "1" : "0"));
+            userEl.appendChild(userAllowEditUsers);
+
+            Element userAllowInsertOtherEvents = document.createElement(User.XML_USER_ALLOW_INSERT_OTHER_EVENTS);
+            userAllowInsertOtherEvents.appendChild(document.createTextNode(user.canInsertOtherEvents() ? "1" : "0"));
+            userEl.appendChild(userAllowInsertOtherEvents);
+        }
+    }
+
+
+    public ArrayList<DrivingTeacher> getDrivingTeachers() {
         return drivingTeachers;
     }
 
     public ArrayList<User> getUsers() {
-        if(users == null)
-            users = new ArrayList<>();
         return users;
     }
 
     public ArrayList<Vehicle> getVehicles() {
-        if(vehicles == null)
-            vehicles = new ArrayList<>();
         return vehicles;
     }
-
 
     public void setDrivingTeachers(ArrayList<DrivingTeacher> drivingTeachers) {
         this.drivingTeachers = drivingTeachers;

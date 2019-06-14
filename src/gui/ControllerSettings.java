@@ -2,7 +2,9 @@ package gui;
 
 import fileControl.SettingsFileManager;
 import general.DrivingTeacher;
+import general.ErrorDialogs;
 import general.LicenceType;
+import general.User;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
@@ -38,6 +40,14 @@ public class ControllerSettings implements Initializable {
 
     //User Dialog Fields
     @FXML Tab userTab;
+    @FXML ListView userListView;
+    @FXML TextField userName;
+    @FXML CheckBox userAllowEditVehicles;
+    @FXML CheckBox userAllowEditTeachers;
+    @FXML CheckBox userAllowEditUsers;
+    @FXML CheckBox userAllowInsertOtherEvent;
+    @FXML MenuItem userMenuItemEdit;
+    @FXML MenuItem userMenuItemDelete;
 
     //General Dialog Fields
     @FXML Tab generalTab;
@@ -77,21 +87,10 @@ public class ControllerSettings implements Initializable {
         }
     }
 
-    //Displays an error-message( errorMessage)
-    private static void showErrorMessage(String errorMessage){
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Fehler");
-        alert.setHeaderText("Folgender Fehler ist Aufgetreten");
-        alert.setContentText(errorMessage);
-
-        alert.showAndWait();
-
-    }
-
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         //TODO echten Pfad anhand der Registry abfragen
-        fileManager = new SettingsFileManager("C:\\Users\\blaschek\\IdeaProjects\\FahrschulKalendar\\src\\fileControl\\XmlVorlage.xml");
+        fileManager = new SettingsFileManager("C:\\Users\\blaschek\\IdeaProjects\\FahrschulKalendar\\src\\fileControl\\XmlVorlage6.xml");
         fileManager.read();
 
         endEditButton.setVisible(false);
@@ -127,7 +126,12 @@ public class ControllerSettings implements Initializable {
                 drivingTeacherName.setDisable(disable);
             //Disable all User Settings
         }else if(currentSettingPage == 2) {
-
+            userAllowEditTeachers.setDisable(disable);
+            userAllowEditUsers.setDisable(disable);
+            userAllowEditVehicles.setDisable(disable);
+            userAllowInsertOtherEvent.setDisable(disable);
+            if(disable)
+                userName.setDisable(disable);
         }
     }
 
@@ -141,7 +145,7 @@ public class ControllerSettings implements Initializable {
         }else if(currentSettingPage == 1){
             refreshDrivingTeacherListView();
         }else if(currentSettingPage == 2) {
-
+            refreshUserListView();
         }
 
         if(!dontDeaktivateEventCanceler)
@@ -156,7 +160,7 @@ public class ControllerSettings implements Initializable {
         }else if(currentSettingPage == 1){
             handleChangeDrivingTeacherSell();
         }else if(currentSettingPage == 2) {
-
+            handleChangeUsersSell();
         }
 
     }
@@ -168,7 +172,7 @@ public class ControllerSettings implements Initializable {
         }else if(currentSettingPage == 1){
             readDrivingTeacherData(reloadFile);
         }else if(currentSettingPage == 2) {
-
+            readUserData(reloadFile);
         }
 
     }
@@ -285,7 +289,7 @@ public class ControllerSettings implements Initializable {
 
     private boolean checkDrivingTeachersInputData(){
         if(drivingTeacherName.getText().isEmpty()){
-            showErrorMessage("Der Name darf nicht lehr sein!");
+            ErrorDialogs.showErrorMessage("Der Name darf nicht lehr sein!");
             return false;
         }
         ArrayList<DrivingTeacher> drivingTeacherList = fileManager.getDrivingTeachers();
@@ -295,7 +299,7 @@ public class ControllerSettings implements Initializable {
             if(i == curSelIndex)
                 continue;
             if(drivingTeacherList.get(i).getName().equals(drivingTeacherName.getText())){
-                showErrorMessage("Dieser Name existiert bereits!");
+                ErrorDialogs.showErrorMessage("Dieser Name existiert bereits!");
                 return false;
             }
         }
@@ -393,6 +397,191 @@ public class ControllerSettings implements Initializable {
     }
 //-----------------------------------------//
 
+
+    //Methods only for the Page Users
+//-----------------------------------------//
+    //Initialize all Dialog Listeners and Dialog items
+    private void initUsersTab(){
+        ArrayList<User> users = fileManager.getUsers();
+
+        //DrivingTeacher Listeners
+        userListView.getSelectionModel().selectedItemProperty().addListener(observable -> handleChangeListViewSell());
+
+        //Disable Dialog Items
+        userMenuItemEdit.setVisible(false);
+        userMenuItemDelete.setVisible(false);
+    }
+
+    @FXML
+    private void handleChangeToUserTab(){
+        endEditMode(false);
+        initUsersTab();
+        currentSettingPage = 2;
+        refreshCurrentListView();
+        disableCurrentPage(true);
+
+        userName.setDisable(true);
+    }
+
+    //Refreshs the ListView of the Users Tab
+    private void refreshUserListView(){
+        userListView.getItems().clear();
+        ArrayList<User> users = fileManager.getUsers();
+        IntStream.range(0, users.size()).forEach(i -> userListView.getItems().add(users.get(i).getName()));
+
+        //Edit and Delete Menu of the ComboBox Enablen/Disablen
+        if(userListView.getItems().size() > 0){
+            userMenuItemEdit.setVisible(true);
+            userMenuItemDelete.setVisible(true);
+        }else {
+            userMenuItemEdit.setVisible(false);
+            userMenuItemDelete.setVisible(false);
+        }
+    }
+
+    private void readUserData(boolean reloadFile){
+        if(reloadFile)
+            fileManager.readUsers();
+
+        ArrayList<User> users = fileManager.getUsers();
+        User currentUser = users.get(userListView.getSelectionModel().getSelectedIndex());
+
+        //Write data in the Dialoge
+        userName.setText(currentUser.getName());
+        userAllowEditVehicles.setSelected(currentUser.canEditVehicles());
+        userAllowEditTeachers.setSelected(currentUser.canEditTeachers());
+        userAllowEditUsers.setSelected(currentUser.canEditUsers());
+        userAllowInsertOtherEvent.setSelected(currentUser.canInsertOtherEvents());
+
+    }
+
+
+    @FXML
+    private void handleChangeUsersSell(){
+        if(editMode){
+            boolean dontDeaktivateEventCanceler = false;
+            if(cancelListViewSelChangeHandler == true)
+                dontDeaktivateEventCanceler = true;
+            cancelListViewSelChangeHandler = true;
+
+            int newSelection = userListView.getSelectionModel().getSelectedIndex();
+            userListView.getSelectionModel().select(lastSelectionOfListView);
+            if(!endEditMode(false)){
+                if(!dontDeaktivateEventCanceler)
+                    cancelListViewSelChangeHandler = false;
+                return;
+            }
+            fileManager.readUsers();
+            refreshCurrentListView();
+            userListView.getSelectionModel().select(newSelection);
+            if(!dontDeaktivateEventCanceler)
+                cancelListViewSelChangeHandler = false;
+        }
+
+        readUserData(true);
+        lastSelectionOfListView = userListView.getSelectionModel().getSelectedIndex();
+    }
+
+    private boolean checkUsersInputData(){
+        if(userName.getText().isEmpty()){
+            ErrorDialogs.showErrorMessage("Der Name darf nicht lehr sein!");
+            return false;
+        }
+        ArrayList<User> userList = fileManager.getUsers();
+
+        int curSelIndex = userListView.getSelectionModel().getSelectedIndex();
+        for(int i = 0; i < userList.size(); i++){
+            if(i == curSelIndex)
+                continue;
+            if(userList.get(i).getName().equals(userName.getText())){
+                ErrorDialogs.showErrorMessage("Dieser Name existiert bereits!");
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private boolean saveUsers(){
+        if(currentSettingPage == 2) {
+            if(!checkUsersInputData()) {
+                return false;
+            }
+            ArrayList<User> users = fileManager.getUsers();
+            int selIndex = userListView.getSelectionModel().getSelectedIndex();
+            User currentUser = users.get(selIndex);
+
+            currentUser.setName(userName.getText());
+            currentUser.setEditTeachers(userAllowEditTeachers.isSelected());
+            currentUser.setEditVehicles(userAllowEditVehicles.isSelected());
+            currentUser.setEditUsers(userAllowEditUsers.isSelected());
+            currentUser.setInsertOtherEvents(userAllowInsertOtherEvent.isSelected());
+
+            fileManager.write();
+            fileManager.readUsers();
+            refreshCurrentListView();
+        }
+        return true;
+    }
+
+    @FXML
+    private void handleNewUser(){
+        boolean dontDeaktivateEventCanceler = false;
+        if(cancelListViewSelChangeHandler == true)
+            dontDeaktivateEventCanceler = true;
+        cancelListViewSelChangeHandler = true;
+
+        if(!endEditMode(false)){
+            return;
+        }
+
+        fileManager.readUsers();
+        refreshCurrentListView();
+
+        ArrayList<User> users = fileManager.getUsers();
+        User newUser = new User();
+        users.add(newUser);
+
+        userListView.getItems().add(userListView.getItems().size(), newUser.getName());
+        userListView.getSelectionModel().select(users.size()-1);
+        lastSelectionOfListView = users.size()-1;
+
+        readUserData(false);
+        userName.setDisable(false);
+        startEditMode();
+
+        if(!dontDeaktivateEventCanceler)
+            cancelListViewSelChangeHandler = false;
+    }
+
+    @FXML
+    private void handleEditUser(){
+        startEditMode();
+    }
+
+    @FXML
+    private void handleDeleteUser(){
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Löschen");
+        alert.setHeaderText("Wollen Sie diesen Benutzer wirklich löschen?");
+
+        ButtonType buttonTypeYes = new ButtonType("Ja");
+        ButtonType buttonTypeNo = new ButtonType("Nein", ButtonBar.ButtonData.CANCEL_CLOSE);
+
+        alert.getButtonTypes().setAll(buttonTypeYes, buttonTypeNo);
+
+        Optional<ButtonType> result = alert.showAndWait();
+        if(result.isEmpty())
+            return;
+        if (result.get() == buttonTypeYes) {
+            fileManager.getUsers().remove(userListView.getSelectionModel().getSelectedIndex());
+            fileManager.write();
+            endEditMode(true);
+            refreshCurrentListView();
+        }
+    }
+//-----------------------------------------//
+
     @FXML
     private void handleCancel(){
         endEditMode(false);
@@ -454,7 +643,8 @@ public class ControllerSettings implements Initializable {
             if(!saveDrivingTeachers())
                 return false;
         }else if(currentSettingPage == 2) {
-
+            if(!saveUsers())
+                return false;
         }
 
         endEditMode(true);
@@ -463,7 +653,8 @@ public class ControllerSettings implements Initializable {
 
     @FXML
     private void handleEndEdit(){
-        endEditMode(false);
+        if(!endEditMode(false))
+            return;
         fileManager.read();
         refreshCurrentListView();
     }

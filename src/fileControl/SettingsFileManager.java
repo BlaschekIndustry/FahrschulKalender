@@ -46,7 +46,61 @@ public class SettingsFileManager extends FileReadWriteManager{
 
         readDrivingTeachers();
         readUsers();
-        //TODO read Vehicles
+        readVehicles();
+    }
+
+    public void readVehicles(){
+        vehicles.clear();
+        NodeList nList = document.getElementsByTagName(Vehicle.XML_VEHICLES_IDENT);
+        if(nList == null)
+            return;
+        for(int i = 0; i < nList.getLength(); i++){
+            Node nNode = nList.item(i);
+            if (nNode.getNodeType() == Node.ELEMENT_NODE) {
+                Element eElement = (Element) nNode;
+
+                Node nodeName = eElement.getElementsByTagName(Vehicle.XML_VEHICLES_NAME_IDENT).item(0);
+                Node nodeIsExamPermit = eElement.getElementsByTagName(Vehicle.XML_VEHICLES_IS_EXAM_PERMITT).item(0);
+                Node nodeIsTrailer = eElement.getElementsByTagName(Vehicle.XML_VEHICLES_IS_TRAILER).item(0);
+
+                if(nodeName == null || nodeIsExamPermit == null || nodeIsTrailer == null){
+                    ErrorDialogs.showErrorMessage("Fehler beim Lesen der Fahrzeuge!");
+                    continue;
+                }
+
+                //Read name
+                String name                 = nodeName.getTextContent();
+                String isExamPermitText     = nodeIsExamPermit.getTextContent();
+                String isTrailerText        = nodeIsTrailer.getTextContent();
+
+                boolean isExamPermit = false;
+                boolean isTrailer = false;
+
+                if(isExamPermitText.equals("1"))
+                    isExamPermit = true;
+                if(isTrailerText.equals("1"))
+                    isTrailer = true;
+
+                //Read the Licences
+                ArrayList<LicenceType> licenceTypes = new ArrayList<>();
+
+                NodeList nLicenceList = eElement.getElementsByTagName(Vehicle.XML_VEHICLES_LICENCETYPE_IDENT);
+                for(int a = 0; a < nLicenceList.getLength(); a++){
+                    Node nLicenceNode = nLicenceList.item(a);
+                    Element eLicenceElement = (Element) nLicenceNode;
+                    String strLicence = eLicenceElement.getTextContent();
+                    LicenceType type = LicenceType.TypeOfXMLName(strLicence);
+                    if(type == null) {
+                        ErrorDialogs.showErrorMessage("Fehler beim Lesen der Lizenzen des Fahrzeuges: " + name);
+                        continue;
+                    }
+                    licenceTypes.add(type);
+                }
+
+                Vehicle newVehicle = new Vehicle(name, isExamPermit, isTrailer, licenceTypes);
+                vehicles.add(newVehicle);
+            }
+        }
     }
 
 
@@ -64,7 +118,7 @@ public class SettingsFileManager extends FileReadWriteManager{
                 Node nodeWorkingHours = eElement.getElementsByTagName(DrivingTeacher.XML_TEACHER_WORKINGHOURS_IDENT).item(0);
 
                 if(nodeName == null || nodeWorkingHours == null){
-                    ErrorDialogs.showErrorMessage("Fehler beimn Lesen der Fahrlehrer!");
+                    ErrorDialogs.showErrorMessage("Fehler beim Lesen der Fahrlehrer!");
                     continue;
                 }
 
@@ -77,7 +131,7 @@ public class SettingsFileManager extends FileReadWriteManager{
                 try {
                     workingHours = Integer.parseInt(nodeWorkingHours.getTextContent());
                 }catch (Exception e){
-                    ErrorDialogs.showErrorMessage("Fehler beimn Lesen der Wochenstunden des Fahrlehrers: " + name);
+                    ErrorDialogs.showErrorMessage("Fehler beim Lesen der Wochenstunden des Fahrlehrers: " + name);
                     continue;
                 }
                 //Read the Licences
@@ -90,7 +144,7 @@ public class SettingsFileManager extends FileReadWriteManager{
                     String strLicence = eLicenceElement.getTextContent();
                     LicenceType type = LicenceType.TypeOfXMLName(strLicence);
                     if(type == null) {
-                        ErrorDialogs.showErrorMessage("Fehler beimn Lesen der Lizenzen des Fahrlehrers: " + name);
+                        ErrorDialogs.showErrorMessage("Fehler beim Lesen der Lizenzen des Fahrlehrers: " + name);
                         continue;
                     }
                     licenceTypes.add(type);
@@ -119,7 +173,7 @@ public class SettingsFileManager extends FileReadWriteManager{
                 Node nodeInsertOtherEvents = eElement.getElementsByTagName(User.XML_USER_ALLOW_INSERT_OTHER_EVENTS).item(0);
 
                 if(nodeName == null || nodeEditVehicles == null || nodeEditTeachers == null || nodeEditUsers == null || nodeInsertOtherEvents == null){
-                    ErrorDialogs.showErrorMessage("Fehler beimn Lesen der Benutzer");
+                    ErrorDialogs.showErrorMessage("Fehler beim Lesen der Benutzer");
                     continue;
                 }
 
@@ -159,9 +213,10 @@ public class SettingsFileManager extends FileReadWriteManager{
         Element rootElement = document.createElement("settings");
         document.appendChild(rootElement);
 
+        writeVehicles(rootElement);
         writeDrivingTeachers(rootElement);
         writeUsers(rootElement);
-        //TODO write Vehicles
+
         try {
             TransformerFactory transformerFactory = TransformerFactory.newInstance();
             Transformer transformer = transformerFactory.newTransformer();
@@ -175,6 +230,39 @@ public class SettingsFileManager extends FileReadWriteManager{
         } catch (TransformerException e) {
             ErrorDialogs.showErrorMessage("Fehler beim schreiben der Datei:\"" + fileName + "\"");
             e.printStackTrace();
+        }
+    }
+
+    private void writeVehicles(Element rootElement){
+        // supercars element
+        Element vehiclesGroup = document.createElement(Vehicle.XML_VEHICLES_GROUP_IDENT);
+        rootElement.appendChild(vehiclesGroup);
+
+        for(int i = 0; i < vehicles.size(); i++){
+            Vehicle vehicle = vehicles.get(i);
+
+            Element vehicleElement = document.createElement(Vehicle.XML_VEHICLES_IDENT);
+            vehiclesGroup.appendChild(vehicleElement);
+
+            Element vehicleName = document.createElement(Vehicle.XML_VEHICLES_NAME_IDENT);
+            vehicleName.appendChild(document.createTextNode(vehicle.getName()));
+            vehicleElement.appendChild(vehicleName);
+
+            Element isExamPermit = document.createElement(Vehicle.XML_VEHICLES_IS_EXAM_PERMITT);
+            isExamPermit.appendChild(document.createTextNode(vehicle.isExamPermit() ? "1" : "0"));
+            vehicleElement.appendChild(isExamPermit);
+
+            Element isTrailer = document.createElement(Vehicle.XML_VEHICLES_IS_TRAILER);
+            isTrailer.appendChild(document.createTextNode(vehicle.isTrailer() ? "1" : "0"));
+            vehicleElement.appendChild(isTrailer);
+
+            for(int a = 0; a < vehicle.getLicenceTypes().size(); a++){
+                Element drivingTeacherLicence = document.createElement(Vehicle.XML_VEHICLES_LICENCETYPE_IDENT);
+                LicenceType licenceType = vehicle.getLicenceTypes().get(a);
+                drivingTeacherLicence.appendChild(document.createTextNode(LicenceType.XMLNameOfType(licenceType)));
+                vehicleElement.appendChild(drivingTeacherLicence);
+            }
+
         }
     }
 

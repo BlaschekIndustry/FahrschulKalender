@@ -1,10 +1,7 @@
 package gui;
 
 import fileControl.SettingsFileManager;
-import general.DrivingTeacher;
-import general.ErrorDialogs;
-import general.LicenceType;
-import general.User;
+import general.*;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
@@ -25,6 +22,12 @@ public class ControllerSettings implements Initializable {
 
     //Vehicles Dialog Fields
     @FXML Tab vehiclesTab;
+    @FXML ListView vehicleListView;
+    @FXML TextField vehicleName;
+    @FXML CheckBox vehicleIsExamPermit;
+    @FXML CheckBox vehicleIsTrailer;
+    @FXML MenuItem vehicleMenuItemEdit;
+    @FXML MenuItem vehicleMenuItemDelete;
 
     //DrivingTeacher Dialog Fields
     @FXML Tab drivingTeacherTab;
@@ -95,6 +98,7 @@ public class ControllerSettings implements Initializable {
 
         endEditButton.setVisible(false);
         saveButton.setDisable(true);
+        handleChangeToVehiclesTab();
     }
 
     public void setStageAndSetupListeners(Stage stage){
@@ -114,7 +118,10 @@ public class ControllerSettings implements Initializable {
     private void disableCurrentPage(boolean disable){
         //Disable all Vehicle Settings
         if(currentSettingPage == 0){
-
+            vehicleIsExamPermit.setDisable(disable);
+            vehicleIsTrailer.setDisable(disable);
+            if(disable)
+                vehicleName.setDisable(disable);
         //Disable all DrivingTeachers Settings
         }else if(currentSettingPage == 1){
             drivingTeacherMaxWorkingHours.setDisable(disable);
@@ -142,6 +149,7 @@ public class ControllerSettings implements Initializable {
         cancelListViewSelChangeHandler = true;
 
         if(currentSettingPage == 0){
+            refreshVehicleListView();
         }else if(currentSettingPage == 1){
             refreshDrivingTeacherListView();
         }else if(currentSettingPage == 2) {
@@ -157,6 +165,7 @@ public class ControllerSettings implements Initializable {
             return;
 
         if(currentSettingPage == 0){
+            handleChangeVehicleSell();
         }else if(currentSettingPage == 1){
             handleChangeDrivingTeacherSell();
         }else if(currentSettingPage == 2) {
@@ -169,6 +178,7 @@ public class ControllerSettings implements Initializable {
     //if reloadFile true the file will be reloaded first
     private void readDataToDialog(boolean reloadFile){
         if(currentSettingPage == 0){
+            readVehicleData(reloadFile);
         }else if(currentSettingPage == 1){
             readDrivingTeacherData(reloadFile);
         }else if(currentSettingPage == 2) {
@@ -181,17 +191,209 @@ public class ControllerSettings implements Initializable {
 //-----------------------------------------//
     //Initialize all Dialog Listeners and Dialog items
     private void initVehiclesTab(){
+        ArrayList<Vehicle> vehicles = fileManager.getVehicles();
 
+        //Vehicle Listeners
+        vehicleListView.getSelectionModel().selectedItemProperty().addListener(observable -> handleChangeListViewSell());
+
+        //Disable Dialog Items
+        vehicleMenuItemEdit.setVisible(false);
+        vehicleMenuItemDelete.setVisible(false);
     }
 
     @FXML
     private void handleChangeToVehiclesTab(){
+        if(fileManager == null)
+            return;
+        endEditMode(false);
         initVehiclesTab();
         currentSettingPage = 0;
         refreshCurrentListView();
         disableCurrentPage(true);
 
+        vehicleName.setDisable(true);
+
     }
+
+    //Refreshs the ListView of the Vehicle Tab
+    private void refreshVehicleListView(){
+        vehicleListView.getItems().clear();
+        ArrayList<Vehicle> vehicles = fileManager.getVehicles();
+        IntStream.range(0, vehicles.size()).forEach(i -> vehicleListView.getItems().add(vehicles.get(i).getName()));
+
+        //Edit and Delete Menu of the ComboBox Enablen/Disablen
+        if(vehicleListView.getItems().size() > 0){
+            vehicleMenuItemEdit.setVisible(true);
+            vehicleMenuItemDelete.setVisible(true);
+        }else {
+            vehicleMenuItemEdit.setVisible(false);
+            vehicleMenuItemDelete.setVisible(false);
+        }
+    }
+
+    private void readVehicleData(boolean reloadFile){
+        if(reloadFile)
+            fileManager.readVehicles();
+
+        ArrayList<Vehicle> vehicles = fileManager.getVehicles();
+        Vehicle currentVehicle = vehicles.get(vehicleListView.getSelectionModel().getSelectedIndex());
+
+        //Write data in the Dialoge
+        vehicleName.setText(currentVehicle.getName());
+        vehicleIsExamPermit.setSelected(currentVehicle.isExamPermit());
+        vehicleIsTrailer.setSelected(currentVehicle.isTrailer());
+
+//        drivingTeacherLicence_A.setSelected(false);
+//        drivingTeacherLicence_B.setSelected(false);
+//        drivingTeacherLicence_C.setSelected(false);
+//        drivingTeacherLicence_D.setSelected(false);
+//        for(int i = 0; i < currentVehicle.getLicenceTypes().size(); i++){
+//            LicenceType licenceType = currentVehicle.getLicenceTypes().get(i);
+//            switch (licenceType){
+//                case LICENCE_TYPE_A:    drivingTeacherLicence_A.setSelected(true); break;
+//                case LICENCE_TYPE_B:    drivingTeacherLicence_B.setSelected(true); break;
+//                case LICENCE_TYPE_C:    drivingTeacherLicence_C.setSelected(true); break;
+//                case LICENCE_TYPE_D:    drivingTeacherLicence_D.setSelected(true); break;
+//            }
+//        }
+    }
+
+
+    @FXML
+    private void handleChangeVehicleSell(){
+        if(editMode){
+            boolean dontDeaktivateEventCanceler = false;
+            if(cancelListViewSelChangeHandler == true)
+                dontDeaktivateEventCanceler = true;
+            cancelListViewSelChangeHandler = true;
+
+            int newSelection = vehicleListView.getSelectionModel().getSelectedIndex();
+            vehicleListView.getSelectionModel().select(lastSelectionOfListView);
+            if(!endEditMode(false)){
+                if(!dontDeaktivateEventCanceler)
+                    cancelListViewSelChangeHandler = false;
+                return;
+            }
+            fileManager.readVehicles();
+            refreshCurrentListView();
+            vehicleListView.getSelectionModel().select(newSelection);
+            if(!dontDeaktivateEventCanceler)
+                cancelListViewSelChangeHandler = false;
+        }
+
+        readVehicleData(true);
+        lastSelectionOfListView = vehicleListView.getSelectionModel().getSelectedIndex();
+    }
+
+    private boolean checkVehiclesInputData(){
+        if(vehicleName.getText().isEmpty()){
+            ErrorDialogs.showErrorMessage("Der Name darf nicht lehr sein!");
+            return false;
+        }
+        ArrayList<Vehicle> vehicles = fileManager.getVehicles();
+
+        int curSelIndex = vehicleListView.getSelectionModel().getSelectedIndex();
+        for(int i = 0; i < vehicles.size(); i++){
+            if(i == curSelIndex)
+                continue;
+            if(vehicles.get(i).getName().equals(vehicleName.getText())){
+                ErrorDialogs.showErrorMessage("Dieser Name existiert bereits!");
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private boolean saveVehicles(){
+        if(currentSettingPage == 0) {
+            if(!checkVehiclesInputData()) {
+                return false;
+            }
+            ArrayList<Vehicle> vehicles = fileManager.getVehicles();
+            int selIndex = vehicleListView.getSelectionModel().getSelectedIndex();
+            Vehicle currentVehicle = vehicles.get(selIndex);
+
+            currentVehicle.setName(vehicleName.getText());
+            currentVehicle.setExamPermit(vehicleIsExamPermit.isSelected());
+            currentVehicle.setTrailer(vehicleIsTrailer.isSelected());
+
+            ArrayList<LicenceType> licenceTypes = new ArrayList<>();
+//            if(drivingTeacherLicence_A.isSelected())
+//                licenceTypes.add(LicenceType.LICENCE_TYPE_A);
+//            if(drivingTeacherLicence_B.isSelected())
+//                licenceTypes.add(LicenceType.LICENCE_TYPE_B);
+//            if(drivingTeacherLicence_C.isSelected())
+//                licenceTypes.add(LicenceType.LICENCE_TYPE_C);
+//            if(drivingTeacherLicence_D.isSelected())
+//                licenceTypes.add(LicenceType.LICENCE_TYPE_D);
+
+            currentVehicle.setLicenceTypes(licenceTypes);
+            fileManager.write();
+            fileManager.readVehicles();
+            refreshCurrentListView();
+        }
+        return true;
+    }
+
+    @FXML
+    private void handleNewVehicle(){
+        boolean dontDeaktivateEventCanceler = false;
+        if(cancelListViewSelChangeHandler == true)
+            dontDeaktivateEventCanceler = true;
+        cancelListViewSelChangeHandler = true;
+
+        if(!endEditMode(false)){
+            return;
+        }
+
+        fileManager.readVehicles();
+        refreshCurrentListView();
+
+        ArrayList<Vehicle> vehicles = fileManager.getVehicles();
+        Vehicle newVehicle = new Vehicle();
+        vehicles.add(newVehicle);
+
+        vehicleListView.getItems().add(vehicleListView.getItems().size(), newVehicle.getName());
+        vehicleListView.getSelectionModel().select(vehicles.size()-1);
+        lastSelectionOfListView = vehicles.size()-1;
+
+        readVehicleData(false);
+        vehicleName.setDisable(false);
+        startEditMode();
+
+        if(!dontDeaktivateEventCanceler)
+            cancelListViewSelChangeHandler = false;
+    }
+
+    @FXML
+    private void handleEditVehicles(){
+        startEditMode();
+    }
+
+    @FXML
+    private void handleDeleteVehicles(){
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Löschen");
+        alert.setHeaderText("Wollen Sie dieses Fahrzeug wirklich löschen?");
+
+        ButtonType buttonTypeYes = new ButtonType("Ja");
+        ButtonType buttonTypeNo = new ButtonType("Nein", ButtonBar.ButtonData.CANCEL_CLOSE);
+
+        alert.getButtonTypes().setAll(buttonTypeYes, buttonTypeNo);
+
+        Optional<ButtonType> result = alert.showAndWait();
+        if(result.isEmpty())
+            return;
+        if (result.get() == buttonTypeYes) {
+            fileManager.getVehicles().remove(vehicleListView.getSelectionModel().getSelectedIndex());
+            fileManager.write();
+            endEditMode(true);
+            refreshCurrentListView();
+        }
+    }
+//-----------------------------------------//
+
 
 //Methods only for the Page Driving Teacher
 //-----------------------------------------//
@@ -639,6 +841,9 @@ public class ControllerSettings implements Initializable {
     @FXML
     private boolean handleSave(){
         if(currentSettingPage == 0){
+            if(!saveVehicles()){
+                return false;
+            }
         }else if(currentSettingPage == 1){
             if(!saveDrivingTeachers())
                 return false;

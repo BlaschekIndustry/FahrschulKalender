@@ -40,8 +40,8 @@
                                  <children>
                                     <Label layoutX="6.0" layoutY="6.0" prefHeight="17.0" prefWidth="43.0" text="Name:" />
                                     <TextField fx:id="vehicleName" layoutX="57.0" layoutY="2.0" prefHeight="25.0" prefWidth="135.0" />
-                                    <CheckBox layoutX="6.0" layoutY="40.0" mnemonicParsing="false" text="ist einPrüfungsfahrzeug" />
-                                    <CheckBox layoutX="6.0" layoutY="68.0" mnemonicParsing="false" text="ist ein Anhänger" />
+                                    <CheckBox fx:id="vehicleIsExamPermit" layoutX="6.0" layoutY="40.0" mnemonicParsing="false" text="ist einPrüfungsfahrzeug" />
+                                    <CheckBox fx:id="vehicleIsTrailer" layoutX="6.0" layoutY="68.0" mnemonicParsing="false" text="ist ein Anhänger" />
                                     <CheckBox layoutX="6.0" layoutY="120.0" mnemonicParsing="false" text="AM" />
                                     <CheckBox layoutX="6.0" layoutY="146.0" mnemonicParsing="false" text="B1" />
                                     <CheckBox layoutX="145.0" layoutY="120.0" mnemonicParsing="false" text="A" />
@@ -63,7 +63,16 @@
                                     <Insets />
                                  </HBox.margin>
                               </AnchorPane>
-                              <ListView fx:id="vehicleListView" prefHeight="219.0" prefWidth="321.0" />
+                              <ListView fx:id="vehicleListView" prefHeight="219.0" prefWidth="321.0">
+                                 <contextMenu>
+                                    <ContextMenu>
+                                       <items>
+                                          <MenuItem fx:id="vehicleMenuItemEdit" mnemonicParsing="false" onAction="#handleEditVehicles" text="Fahrzeug bearbeiten" />
+                                          <MenuItem fx:id="vehicleMenuItemDelete" mnemonicParsing="false" onAction="#handleDeleteVehicles" text="Fahrzeug löschen" />
+                                          <MenuItem fx:id="vehicleMenuItemNew" mnemonicParsing="false" onAction="#handleNewVehicle" text="Neues Fahrzeug einfügen" />
+                                       </items>
+                                    </ContextMenu>
+                                 </contextMenu></ListView>
                            </children>
                         </HBox>
                      </center>

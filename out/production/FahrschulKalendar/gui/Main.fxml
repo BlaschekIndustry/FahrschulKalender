@@ -30,7 +30,7 @@
       <AnchorPane maxWidth="348.0" prefHeight="56.0" prefWidth="348.0" BorderPane.alignment="CENTER">
          <children>
             <Label layoutX="93.0" layoutY="20.0" text="Benutzer:" />
-            <ComboBox fx:id="userComboBox" layoutX="155.0" layoutY="16.0" prefHeight="25.0" prefWidth="176.0" />
+            <ComboBox fx:id="userComboBox" layoutX="155.0" layoutY="16.0" onAction="#changeUserSel" prefHeight="25.0" prefWidth="176.0" />
          </children>
       </AnchorPane>
    </top>

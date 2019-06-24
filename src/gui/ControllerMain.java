@@ -1,5 +1,7 @@
 package gui;
 
+import fileControl.SettingsFileManager;
+import general.User;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -11,6 +13,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.ResourceBundle;
 
 public class ControllerMain implements Initializable {
@@ -21,10 +24,37 @@ public class ControllerMain implements Initializable {
     @FXML Button cancelButton;
     @FXML private ComboBox<String> userComboBox;
     private Stage stage;
+    SettingsFileManager fileManager;
+    private int lastComboSel = 0;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        fileManager = new SettingsFileManager("C:\\Users\\blaschek\\IdeaProjects\\FahrschulKalendar\\src\\fileControl\\XmlVorlage6.xml");
+        reloadUserCombo();
+    }
 
+    public void reloadUserCombo(){
+        //Todo muss nach den schlißen der Eisntellungen aufgerufen werden
+        fileManager.read();
+
+        ArrayList<User> users = fileManager.getUsers();
+        for(int i = 0; i < users.size(); i++) {
+            userComboBox.getItems().add(users.get(i).getName());
+        }
+        if(lastComboSel < users.size())
+            userComboBox.getSelectionModel().select(lastComboSel);
+        changeUserSel();
+    }
+
+    @FXML
+    public void changeUserSel(){
+        int curSel = userComboBox.getSelectionModel().getSelectedIndex();
+        ArrayList<User> users = fileManager.getUsers();
+        if(curSel >= 0 && curSel < users.size()) {
+            User currentUser = users.get(curSel);
+            otherTermin.setDisable(!currentUser.canInsertOtherEvents());
+            lastComboSel = curSel;
+        }
     }
 
     public void setStageAndSetupListeners(Stage stage){

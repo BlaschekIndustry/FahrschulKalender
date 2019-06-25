@@ -42,22 +42,14 @@
                                     <TextField fx:id="vehicleName" layoutX="57.0" layoutY="2.0" prefHeight="25.0" prefWidth="135.0" />
                                     <CheckBox fx:id="vehicleIsExamPermit" layoutX="6.0" layoutY="40.0" mnemonicParsing="false" text="ist einPrüfungsfahrzeug" />
                                     <CheckBox fx:id="vehicleIsTrailer" layoutX="6.0" layoutY="68.0" mnemonicParsing="false" text="ist ein Anhänger" />
-                                    <CheckBox layoutX="6.0" layoutY="120.0" mnemonicParsing="false" text="AM" />
-                                    <CheckBox layoutX="6.0" layoutY="146.0" mnemonicParsing="false" text="B1" />
-                                    <CheckBox layoutX="145.0" layoutY="120.0" mnemonicParsing="false" text="A" />
-                                    <CheckBox layoutX="102.0" layoutY="120.0" mnemonicParsing="false" text="A2" />
-                                    <CheckBox layoutX="56.0" layoutY="120.0" mnemonicParsing="false" text="A1" />
-                                    <Label layoutX="7.0" layoutY="97.0" text="Führerscheinklassen:" />
-                                    <CheckBox layoutX="56.0" layoutY="171.0" mnemonicParsing="false" text="C1E" />
-                                    <CheckBox layoutX="6.0" layoutY="171.0" mnemonicParsing="false" text="BE" />
-                                    <CheckBox layoutX="56.0" layoutY="145.0" mnemonicParsing="false" text="B" />
-                                    <CheckBox layoutX="145.0" layoutY="146.0" mnemonicParsing="false" text="D" />
-                                    <CheckBox layoutX="102.0" layoutY="145.0" mnemonicParsing="false" prefHeight="17.0" prefWidth="39.0" text="C1" />
-                                    <CheckBox layoutX="102.0" layoutY="171.0" mnemonicParsing="false" text="CE" />
-                                    <CheckBox layoutX="102.0" layoutY="197.0" mnemonicParsing="false" text="T" />
-                                    <CheckBox layoutX="56.0" layoutY="197.0" mnemonicParsing="false" text="L" />
-                                    <CheckBox layoutX="6.0" layoutY="197.0" mnemonicParsing="false" text="DE" />
-                                    <CheckBox layoutX="142.0" layoutY="171.0" mnemonicParsing="false" text="D!E" />
+                                    <CheckBox fx:id="vehicleLicence_AM" layoutX="6.0" layoutY="153.0" mnemonicParsing="false" text="AM" />
+                                    <CheckBox fx:id="vehicleLicence_A1" layoutX="56.0" layoutY="153.0" mnemonicParsing="false" text="A1" />
+                                    <CheckBox fx:id="vehicleLicence_A2" layoutX="102.0" layoutY="153.0" mnemonicParsing="false" text="A2" />
+                                    <CheckBox fx:id="vehicleLicence_A" layoutX="145.0" layoutY="153.0" mnemonicParsing="false" text="A" />
+                                    <CheckBox fx:id="vehicleLicence_B" layoutX="6.0" layoutY="179.0" mnemonicParsing="false" text="B" />
+                                    <CheckBox fx:id="vehicleLicence_BE" layoutX="56.0" layoutY="178.0" mnemonicParsing="false" text="BE" />
+                                    <Label layoutX="7.0" layoutY="130.0" text="Führerscheinklassen:" />
+                                    <CheckBox fx:id="vehicleIsAutomatic" layoutX="6.0" layoutY="96.0" mnemonicParsing="false" text="Automatikschaltung" />
                                  </children>
                                  <HBox.margin>
                                     <Insets />
@@ -98,13 +90,15 @@
                                  <children>
                                     <Label layoutX="2.0" layoutY="6.0" prefHeight="17.0" prefWidth="43.0" text="Name:" />
                                     <TextField fx:id="drivingTeacherName" layoutX="49.0" layoutY="2.0" prefHeight="25.0" prefWidth="147.0" />
-                                    <CheckBox fx:id="drivingTeacherLicence_A" layoutX="5.0" layoutY="90.0" mnemonicParsing="false" text="A" />
+                                    <CheckBox fx:id="drivingTeacherLicence_AM" layoutX="5.0" layoutY="90.0" mnemonicParsing="false" prefHeight="17.0" prefWidth="40.0" text="AM" />
                                     <Label layoutX="5.0" layoutY="67.0" text="Führerscheinklassen:" />
-                                    <CheckBox fx:id="drivingTeacherLicence_B" layoutX="55.0" layoutY="90.0" mnemonicParsing="false" text="B" />
-                                    <CheckBox fx:id="drivingTeacherLicence_C" layoutX="100.0" layoutY="90.0" mnemonicParsing="false" text="C" />
-                                    <CheckBox fx:id="drivingTeacherLicence_D" layoutX="141.0" layoutY="90.0" mnemonicParsing="false" prefHeight="17.0" prefWidth="39.0" text="D" />
+                                    <CheckBox fx:id="drivingTeacherLicence_A1" layoutX="55.0" layoutY="90.0" mnemonicParsing="false" text="A1" />
+                                    <CheckBox fx:id="drivingTeacherLicence_A2" layoutX="100.0" layoutY="90.0" mnemonicParsing="false" text="A2" />
+                                    <CheckBox fx:id="drivingTeacherLicence_A" layoutX="141.0" layoutY="90.0" mnemonicParsing="false" prefHeight="17.0" prefWidth="39.0" text="A" />
                                     <Label layoutX="4.0" layoutY="38.0" text="Max Wochenstunden:" />
+                                    <CheckBox fx:id="drivingTeacherLicence_B" layoutX="5.0" layoutY="116.0" mnemonicParsing="false" text="B" />
                                     <Spinner fx:id="drivingTeacherMaxWorkingHours" layoutX="131.0" layoutY="35.0" prefHeight="25.0" prefWidth="63.0" />
+                                    <CheckBox fx:id="drivingTeacherLicence_BE" layoutX="55.0" layoutY="116.0" mnemonicParsing="false" text="BE" />
                                  </children>
                                  <HBox.margin>
                                     <Insets />

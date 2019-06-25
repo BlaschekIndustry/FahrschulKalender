@@ -62,8 +62,9 @@ public class SettingsFileManager extends FileReadWriteManager{
                 Node nodeName = eElement.getElementsByTagName(Vehicle.XML_VEHICLES_NAME_IDENT).item(0);
                 Node nodeIsExamPermit = eElement.getElementsByTagName(Vehicle.XML_VEHICLES_IS_EXAM_PERMITT).item(0);
                 Node nodeIsTrailer = eElement.getElementsByTagName(Vehicle.XML_VEHICLES_IS_TRAILER).item(0);
+                Node nodeIsAutmatic = eElement.getElementsByTagName(Vehicle.XML_VEHICLES_IS_AUTOMATIC).item(0);
 
-                if(nodeName == null || nodeIsExamPermit == null || nodeIsTrailer == null){
+                if(nodeName == null || nodeIsExamPermit == null || nodeIsTrailer == null || nodeIsAutmatic == null){
                     ErrorDialogs.showErrorMessage("Fehler beim Lesen der Fahrzeuge!");
                     continue;
                 }
@@ -72,14 +73,18 @@ public class SettingsFileManager extends FileReadWriteManager{
                 String name                 = nodeName.getTextContent();
                 String isExamPermitText     = nodeIsExamPermit.getTextContent();
                 String isTrailerText        = nodeIsTrailer.getTextContent();
+                String isAutomaticText      = nodeIsAutmatic.getTextContent();
 
                 boolean isExamPermit = false;
                 boolean isTrailer = false;
+                boolean isAutomatic = false;
 
                 if(isExamPermitText.equals("1"))
                     isExamPermit = true;
                 if(isTrailerText.equals("1"))
                     isTrailer = true;
+                if(isAutomaticText.equals("1"))
+                    isAutomatic = true;
 
                 //Read the Licences
                 ArrayList<LicenceType> licenceTypes = new ArrayList<>();
@@ -97,7 +102,7 @@ public class SettingsFileManager extends FileReadWriteManager{
                     licenceTypes.add(type);
                 }
 
-                Vehicle newVehicle = new Vehicle(name, isExamPermit, isTrailer, licenceTypes);
+                Vehicle newVehicle = new Vehicle(name, isExamPermit, isTrailer, isAutomatic, licenceTypes);
                 vehicles.add(newVehicle);
             }
         }
@@ -255,6 +260,10 @@ public class SettingsFileManager extends FileReadWriteManager{
             Element isTrailer = document.createElement(Vehicle.XML_VEHICLES_IS_TRAILER);
             isTrailer.appendChild(document.createTextNode(vehicle.isTrailer() ? "1" : "0"));
             vehicleElement.appendChild(isTrailer);
+
+            Element isAutomatic = document.createElement(Vehicle.XML_VEHICLES_IS_AUTOMATIC);
+            isAutomatic.appendChild(document.createTextNode(vehicle.isAutomatic() ? "1" : "0"));
+            vehicleElement.appendChild(isAutomatic);
 
             for(int a = 0; a < vehicle.getLicenceTypes().size(); a++){
                 Element drivingTeacherLicence = document.createElement(Vehicle.XML_VEHICLES_LICENCETYPE_IDENT);

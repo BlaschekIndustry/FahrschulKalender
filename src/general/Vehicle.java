@@ -8,23 +8,28 @@ public class Vehicle {
     public static final String XML_VEHICLES_NAME_IDENT = "vName";
     public static final String XML_VEHICLES_IS_EXAM_PERMITT = "vIsExamPermit";
     public static final String XML_VEHICLES_IS_TRAILER = "vIsTrailer";
+    public static final String XML_VEHICLES_IS_AUTOMATIC = "vIsAutomatic";
     public static final String XML_VEHICLES_LICENCETYPE_IDENT = "vLicence";
 
     private String name;
     private Boolean isExamPermit;
     private Boolean isTrailer;
+    private Boolean isAutomatic;
     private ArrayList<LicenceType> licenceTypes;
 
     public Vehicle(){
-        this("Neues Fahrzeug", false, false, null);
+        this("Neues Fahrzeug", false, false, false, null);
         licenceTypes = new ArrayList<>();
         licenceTypes.add(LicenceType.LICENCE_TYPE_B);
     }
 
-    public Vehicle(String name, Boolean isExamPermit, Boolean isTrailer, ArrayList<LicenceType> licenceTypes) {
+
+
+    public Vehicle(String name, Boolean isExamPermit, Boolean isTrailer, Boolean isAutomatic, ArrayList<LicenceType> licenceTypes) {
         this.name = name;
         this.isExamPermit = isExamPermit;
         this.isTrailer = isTrailer;
+        this.isAutomatic = isAutomatic;
         if(licenceTypes != null)
             this.licenceTypes = licenceTypes;
     }
@@ -41,6 +46,8 @@ public class Vehicle {
         isTrailer = trailer;
     }
 
+    public void setAutomatic(Boolean automatic) { isAutomatic = automatic; }
+
     public void setLicenceTypes(ArrayList<LicenceType> licenceTypes) {
         this.licenceTypes = licenceTypes;
     }
@@ -56,6 +63,8 @@ public class Vehicle {
     public Boolean isTrailer() {
         return isTrailer;
     }
+
+    public Boolean isAutomatic() { return isAutomatic;   }
 
     public ArrayList<LicenceType> getLicenceTypes() {
         return licenceTypes;

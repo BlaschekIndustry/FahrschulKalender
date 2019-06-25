@@ -26,18 +26,27 @@ public class ControllerSettings implements Initializable {
     @FXML TextField vehicleName;
     @FXML CheckBox vehicleIsExamPermit;
     @FXML CheckBox vehicleIsTrailer;
+    @FXML CheckBox vehicleIsAutomatic;
     @FXML MenuItem vehicleMenuItemEdit;
     @FXML MenuItem vehicleMenuItemDelete;
+    @FXML CheckBox vehicleLicence_AM;
+    @FXML CheckBox vehicleLicence_A1;
+    @FXML CheckBox vehicleLicence_A2;
+    @FXML CheckBox vehicleLicence_A;
+    @FXML CheckBox vehicleLicence_B;
+    @FXML CheckBox vehicleLicence_BE;
 
     //DrivingTeacher Dialog Fields
     @FXML Tab drivingTeacherTab;
     @FXML ListView drivingTeacherListView;
     @FXML TextField drivingTeacherName;
     @FXML Spinner<Integer> drivingTeacherMaxWorkingHours;
+    @FXML CheckBox drivingTeacherLicence_AM;
+    @FXML CheckBox drivingTeacherLicence_A1;
+    @FXML CheckBox drivingTeacherLicence_A2;
     @FXML CheckBox drivingTeacherLicence_A;
     @FXML CheckBox drivingTeacherLicence_B;
-    @FXML CheckBox drivingTeacherLicence_C;
-    @FXML CheckBox drivingTeacherLicence_D;
+    @FXML CheckBox drivingTeacherLicence_BE;
     @FXML MenuItem drivingTeacherMenuItemEdit;
     @FXML MenuItem drivingTeacherMenuItemDelete;
 
@@ -120,15 +129,24 @@ public class ControllerSettings implements Initializable {
         if(currentSettingPage == 0){
             vehicleIsExamPermit.setDisable(disable);
             vehicleIsTrailer.setDisable(disable);
+            vehicleIsAutomatic.setDisable(disable);
+            vehicleLicence_AM.setDisable(disable);
+            vehicleLicence_A1.setDisable(disable);
+            vehicleLicence_A2.setDisable(disable);
+            vehicleLicence_A.setDisable(disable);
+            vehicleLicence_B.setDisable(disable);
+            vehicleLicence_BE.setDisable(disable);
             if(disable)
                 vehicleName.setDisable(disable);
         //Disable all DrivingTeachers Settings
         }else if(currentSettingPage == 1){
             drivingTeacherMaxWorkingHours.setDisable(disable);
+            drivingTeacherLicence_AM.setDisable(disable);
+            drivingTeacherLicence_A1.setDisable(disable);
+            drivingTeacherLicence_A2.setDisable(disable);
             drivingTeacherLicence_A.setDisable(disable);
             drivingTeacherLicence_B.setDisable(disable);
-            drivingTeacherLicence_C.setDisable(disable);
-            drivingTeacherLicence_D.setDisable(disable);
+            drivingTeacherLicence_BE.setDisable(disable);
             if(disable)
                 drivingTeacherName.setDisable(disable);
             //Disable all User Settings
@@ -242,20 +260,26 @@ public class ControllerSettings implements Initializable {
         vehicleName.setText(currentVehicle.getName());
         vehicleIsExamPermit.setSelected(currentVehicle.isExamPermit());
         vehicleIsTrailer.setSelected(currentVehicle.isTrailer());
+        vehicleIsAutomatic.setSelected(currentVehicle.isAutomatic());
 
-//        drivingTeacherLicence_A.setSelected(false);
-//        drivingTeacherLicence_B.setSelected(false);
-//        drivingTeacherLicence_C.setSelected(false);
-//        drivingTeacherLicence_D.setSelected(false);
-//        for(int i = 0; i < currentVehicle.getLicenceTypes().size(); i++){
-//            LicenceType licenceType = currentVehicle.getLicenceTypes().get(i);
-//            switch (licenceType){
-//                case LICENCE_TYPE_A:    drivingTeacherLicence_A.setSelected(true); break;
-//                case LICENCE_TYPE_B:    drivingTeacherLicence_B.setSelected(true); break;
-//                case LICENCE_TYPE_C:    drivingTeacherLicence_C.setSelected(true); break;
-//                case LICENCE_TYPE_D:    drivingTeacherLicence_D.setSelected(true); break;
-//            }
-//        }
+        vehicleLicence_AM.setSelected(false);
+        vehicleLicence_A1.setSelected(false);
+        vehicleLicence_A2.setSelected(false);
+        vehicleLicence_A.setSelected(false);
+        vehicleLicence_B.setSelected(false);
+        vehicleLicence_BE.setSelected(false);
+
+        for(int i = 0; i < currentVehicle.getLicenceTypes().size(); i++){
+            LicenceType licenceType = currentVehicle.getLicenceTypes().get(i);
+            switch (licenceType){
+                case LICENCE_TYPE_AM:    vehicleLicence_AM.setSelected(true); break;
+                case LICENCE_TYPE_A1:    vehicleLicence_A1.setSelected(true); break;
+                case LICENCE_TYPE_A2:    vehicleLicence_A2.setSelected(true); break;
+                case LICENCE_TYPE_A:     vehicleLicence_A.setSelected(true); break;
+                case LICENCE_TYPE_B:     vehicleLicence_B.setSelected(true); break;
+                case LICENCE_TYPE_BE:    vehicleLicence_BE.setSelected(true); break;
+            }
+        }
     }
 
 
@@ -317,16 +341,21 @@ public class ControllerSettings implements Initializable {
             currentVehicle.setName(vehicleName.getText());
             currentVehicle.setExamPermit(vehicleIsExamPermit.isSelected());
             currentVehicle.setTrailer(vehicleIsTrailer.isSelected());
+            currentVehicle.setAutomatic(vehicleIsAutomatic.isSelected());
 
             ArrayList<LicenceType> licenceTypes = new ArrayList<>();
-//            if(drivingTeacherLicence_A.isSelected())
-//                licenceTypes.add(LicenceType.LICENCE_TYPE_A);
-//            if(drivingTeacherLicence_B.isSelected())
-//                licenceTypes.add(LicenceType.LICENCE_TYPE_B);
-//            if(drivingTeacherLicence_C.isSelected())
-//                licenceTypes.add(LicenceType.LICENCE_TYPE_C);
-//            if(drivingTeacherLicence_D.isSelected())
-//                licenceTypes.add(LicenceType.LICENCE_TYPE_D);
+            if(vehicleLicence_AM.isSelected())
+                licenceTypes.add(LicenceType.LICENCE_TYPE_AM);
+            if(vehicleLicence_A1.isSelected())
+                licenceTypes.add(LicenceType.LICENCE_TYPE_A1);
+            if(vehicleLicence_A2.isSelected())
+                licenceTypes.add(LicenceType.LICENCE_TYPE_A2);
+            if(vehicleLicence_A.isSelected())
+                licenceTypes.add(LicenceType.LICENCE_TYPE_A);
+            if(vehicleLicence_B.isSelected())
+                licenceTypes.add(LicenceType.LICENCE_TYPE_B);
+            if(vehicleLicence_BE.isSelected())
+                licenceTypes.add(LicenceType.LICENCE_TYPE_BE);
 
             currentVehicle.setLicenceTypes(licenceTypes);
             fileManager.write();
@@ -447,17 +476,21 @@ public class ControllerSettings implements Initializable {
         drivingTeacherName.setText(currentTeacher.getName());
         drivingTeacherMaxWorkingHours.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0,60, currentTeacher.getWorkingHours()));
 
+        drivingTeacherLicence_AM.setSelected(false);
+        drivingTeacherLicence_A1.setSelected(false);
+        drivingTeacherLicence_A2.setSelected(false);
         drivingTeacherLicence_A.setSelected(false);
         drivingTeacherLicence_B.setSelected(false);
-        drivingTeacherLicence_C.setSelected(false);
-        drivingTeacherLicence_D.setSelected(false);
+        drivingTeacherLicence_BE.setSelected(false);
         for(int i = 0; i < currentTeacher.getLicenceTypes().size(); i++){
             LicenceType licenceType = currentTeacher.getLicenceTypes().get(i);
             switch (licenceType){
-                case LICENCE_TYPE_A:    drivingTeacherLicence_A.setSelected(true); break;
-                case LICENCE_TYPE_B:    drivingTeacherLicence_B.setSelected(true); break;
-                case LICENCE_TYPE_C:    drivingTeacherLicence_C.setSelected(true); break;
-                case LICENCE_TYPE_D:    drivingTeacherLicence_D.setSelected(true); break;
+                case LICENCE_TYPE_AM:    drivingTeacherLicence_AM.setSelected(true); break;
+                case LICENCE_TYPE_A1:    drivingTeacherLicence_A1.setSelected(true); break;
+                case LICENCE_TYPE_A2:    drivingTeacherLicence_A2.setSelected(true); break;
+                case LICENCE_TYPE_A:     drivingTeacherLicence_A.setSelected(true); break;
+                case LICENCE_TYPE_B:     drivingTeacherLicence_B.setSelected(true); break;
+                case LICENCE_TYPE_BE:    drivingTeacherLicence_BE.setSelected(true); break;
             }
         }
     }
@@ -522,14 +555,18 @@ public class ControllerSettings implements Initializable {
             currentTeacher.setWorkingHours(drivingTeacherMaxWorkingHours.getValue());
 
             ArrayList<LicenceType> licenceTypes = new ArrayList<>();
+            if(drivingTeacherLicence_AM.isSelected())
+                licenceTypes.add(LicenceType.LICENCE_TYPE_AM);
+            if(drivingTeacherLicence_A1.isSelected())
+                licenceTypes.add(LicenceType.LICENCE_TYPE_A1);
+            if(drivingTeacherLicence_A2.isSelected())
+                licenceTypes.add(LicenceType.LICENCE_TYPE_A2);
             if(drivingTeacherLicence_A.isSelected())
                 licenceTypes.add(LicenceType.LICENCE_TYPE_A);
             if(drivingTeacherLicence_B.isSelected())
                 licenceTypes.add(LicenceType.LICENCE_TYPE_B);
-            if(drivingTeacherLicence_C.isSelected())
-                licenceTypes.add(LicenceType.LICENCE_TYPE_C);
-            if(drivingTeacherLicence_D.isSelected())
-                licenceTypes.add(LicenceType.LICENCE_TYPE_D);
+            if(drivingTeacherLicence_BE.isSelected())
+                licenceTypes.add(LicenceType.LICENCE_TYPE_BE);
 
             currentTeacher.setLicenceTypes(licenceTypes);
             fileManager.write();

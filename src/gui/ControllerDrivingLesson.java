@@ -32,6 +32,7 @@ public class ControllerDrivingLesson implements Initializable {
         stage.setMaxWidth(stage.getWidth());
         stage.setMinWidth(stage.getWidth());
         stage.setMinHeight(stage.getHeight());
+        stage.setMaxHeight(stage.getHeight());
     }
 
     @FXML

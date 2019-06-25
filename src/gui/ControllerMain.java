@@ -29,7 +29,7 @@ public class ControllerMain implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        fileManager = new SettingsFileManager("C:\\Users\\blaschek\\IdeaProjects\\FahrschulKalendar\\src\\fileControl\\XmlVorlage6.xml");
+        fileManager = new SettingsFileManager();
         reloadUserCombo();
     }
 
@@ -88,7 +88,7 @@ public class ControllerMain implements Initializable {
     public void handleCreateOtherTermin() throws Exception{
         FXMLLoader loader = new FXMLLoader(getClass().getResource("SonstigeTermine.fxml"));
         Parent root = (Parent)loader.load();
-        ControllerMain controller = (ControllerMain)loader.getController();
+        ControllerOtherEvent controller = (ControllerOtherEvent)loader.getController();
         Stage otherTermin = new Stage();
         controller.setStageAndSetupListeners(otherTermin); // or what you want to do
         otherTermin.setScene(new Scene(root));

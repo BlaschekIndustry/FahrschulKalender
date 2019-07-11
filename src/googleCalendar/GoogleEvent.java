@@ -2,14 +2,27 @@ package googleCalendar;
 
 import com.google.api.client.util.DateTime;
 import com.google.api.services.calendar.model.Event;
+import general.DrivingTeacher;
+import general.LicenceType;
+import general.Vehicle;
 
+import java.util.ArrayList;
 import java.util.Date;
 
 public class GoogleEvent {
+    private static final String START_SEQUENZ = "#StartIntern";
+    private static final String END_SEQUENZ = "#EndIntern";
+
     private String header;
     private String description;
     private Date startDate;
     private Date endDate;
+
+    //Drivinglesson Params
+    private String student = "";
+    private LicenceType licence = null;
+    private ArrayList<String> teachers = new ArrayList<>();
+    private ArrayList<String> vehicles = new ArrayList<>();
 
     public GoogleEvent(Event googleEvent){
         this.header = googleEvent.getSummary();
@@ -26,6 +39,99 @@ public class GoogleEvent {
             end = googleEvent.getEnd().getDate();
         }
         this.endDate = new Date((end.getValue()));
+        fillDrivingLessonParamsWithDescription();
+    }
+
+    private void fillDrivingLessonParamsWithDescription(){
+        int startSequenzIndex = description.indexOf(START_SEQUENZ);
+
+        String curSubStr = description.substring(startSequenzIndex+START_SEQUENZ.length()+1);
+        curSubStr = curSubStr.substring(0, curSubStr.indexOf(END_SEQUENZ));
+
+        String[] partsOfCurSub = curSubStr.split("#");
+
+        if(partsOfCurSub.length != 4) {
+            System.out.println("Fehler lesen");
+            //TODO FEhler lesen
+        }
+
+        student = partsOfCurSub[0];
+
+        String licenceText = partsOfCurSub[1];
+        licence = LicenceType.TypeOfXMLName(licenceText);
+
+        String drivingTeacherText  = partsOfCurSub[2];
+        String[] drivingTeachersArray = drivingTeacherText.split(";");
+        for(String curDrivingTeacher : drivingTeachersArray){
+            teachers.add(curDrivingTeacher);
+        }
+
+        String cehicleText  = partsOfCurSub[3];
+        String[] vehiclesArray = cehicleText.split(";");
+        for(String curVehicle : vehiclesArray){
+            vehicles.add(curVehicle);
+        }
+
+    }
+
+    public String getHeader() {
+        return header;
+    }
+
+    public void setHeader(String header) {
+        this.header = header;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public Date getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(Date startDate) {
+        this.startDate = startDate;
+    }
+
+    public Date getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(Date endDate) {
+        this.endDate = endDate;
+    }
+
+    public String getStudent() {
+        return student;
+    }
+
+    public void setStudent(String student) {
+        this.student = student;
+    }
+
+    public LicenceType getLicence() {
+        return licence;
+    }
+
+    public void setLicence(LicenceType licence) {
+        this.licence = licence;
+    }
+
+    public ArrayList<String> getTeachers() {
+        return teachers;
+    }
+
+    public void setTeachers(ArrayList<String> teachers) {
+        this.teachers = teachers;
+    }
+
+    public ArrayList<String> getVehicles() {
+        return vehicles;
+    }
+
+    public void setVehicles(ArrayList<String> vehicles) {
+        this.vehicles = vehicles;
     }
 
     @Override

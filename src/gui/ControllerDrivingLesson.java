@@ -1,24 +1,131 @@
 package gui;
 
+import fileControl.SettingsFileManager;
+import general.DrivingTeacher;
+import general.LicenceType;
+import googleCalendar.CalendarHelper;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Insets;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
+import javafx.util.Callback;
 
 import java.net.URL;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.ResourceBundle;
 
 public class ControllerDrivingLesson implements Initializable {
+    @FXML TextField student;
+
     @FXML Button cancelButton;
+    @FXML TableView<TableRow> weekTable;
+    @FXML TableColumn tableMo;
+    @FXML TableColumn tableTu;
+    @FXML TableColumn tableWe;
+    @FXML TableColumn tableTh;
+    @FXML TableColumn tableFr;
+    @FXML TableColumn tableSa;
+    private String moColor;
+
+
+    @FXML ComboBox<String> driverLicence;
+    @FXML ComboBox<String> drivingTeacher;
+
+    @FXML ComboBox<String> weekCombo;
+    @FXML Button weekForward;
+    @FXML Button weekBack;
+
     private Stage stage;
+    SettingsFileManager fileManager;
+    Date mondayOfCurrentDate;
+    Date mondayOfCurrentSelectedWeek;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        fileManager = new SettingsFileManager();
 
+        student.textProperty().addListener((observable, oldValue, newValue) -> {
+            handleEditStudent();
+        });
+
+        weekTable.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+
+
+        tableMo.setCellValueFactory(new PropertyValueFactory<>("mo"));
+        tableTu.setCellValueFactory(new PropertyValueFactory<>("tu"));
+        tableWe.setCellValueFactory(new PropertyValueFactory<>("we"));
+        tableTh.setCellValueFactory(new PropertyValueFactory<>("th"));
+        tableFr.setCellValueFactory(new PropertyValueFactory<>("fr"));
+        tableSa.setCellValueFactory(new PropertyValueFactory<>("sa"));
+
+        tableMo.setCellFactory(e -> new TableCell<ObservableList<String>, String>() {
+            @Override
+            public void updateItem(String item, boolean empty) {
+                // Always invoke super constructor.
+                super.updateItem(item, empty);
+
+                if (item == null || empty) {
+                    setText(null);
+                } else {
+                    setText(item);
+                    if(!moColor.equals(""))
+                        this.setStyle("-fx-background-color:" + moColor +";");
+                }
+            }
+        });
+
+        weekTable.getItems().add(new TableRow("11:15 - 12:00\nPeter Ferdinatn", "Tu","We","Th","Fr","Sa"));
+        weekTable.getItems().add(new TableRow("Mo", "Tu","We","Th","Fr","Sa"));
+
+        //Fill ComboBox with driverlicences
+        driverLicence.getItems().add(LicenceType.XMLNameOfType(LicenceType.LICENCE_TYPE_AM));
+        driverLicence.getItems().add(LicenceType.XMLNameOfType(LicenceType.LICENCE_TYPE_A1));
+        driverLicence.getItems().add(LicenceType.XMLNameOfType(LicenceType.LICENCE_TYPE_A2));
+        driverLicence.getItems().add(LicenceType.XMLNameOfType(LicenceType.LICENCE_TYPE_A));
+        driverLicence.getItems().add(LicenceType.XMLNameOfType(LicenceType.LICENCE_TYPE_B));
+        driverLicence.getItems().add(LicenceType.XMLNameOfType(LicenceType.LICENCE_TYPE_B_A));
+        driverLicence.getItems().add(LicenceType.XMLNameOfType(LicenceType.LICENCE_TYPE_BE));
+
+        driverLicence.getSelectionModel().select(4);
+
+        //Fill driving teachers
+        fileManager.read();
+        for(DrivingTeacher curTeacher : fileManager.getDrivingTeachers()) {
+            drivingTeacher.getItems().add(curTeacher.getName());
+        }
+
+        //Fill Weaks
+        Date curDate = CalendarHelper.getCurrentDate();
+        curDate = CalendarHelper.getLastMonday(curDate);
+        curDate = CalendarHelper.getStartOfTheDay(curDate);
+
+
+        Calendar weekCalendar = Calendar.getInstance();
+
+        curDate = CalendarHelper.getDateAfterDayPeriode(curDate, -4 * 7);
+        mondayOfCurrentDate = curDate;
+
+        for(int i = 0; i < 12; i++){
+            weekCalendar.setTime(curDate);
+            String comboText = "KW: " + weekCalendar.get(Calendar.WEEK_OF_YEAR) + " ("  + weekCalendar.get(Calendar.DAY_OF_MONTH) + "." + (weekCalendar.get(Calendar.MONTH) +1) + " - ";
+            curDate = CalendarHelper.getDateAfterDayPeriode(curDate, 5);
+            weekCalendar.setTime(curDate);
+            comboText += weekCalendar.get(Calendar.DAY_OF_MONTH) + "." + (weekCalendar.get(Calendar.MONTH) + 1) + ")";
+
+            curDate = CalendarHelper.getDateAfterDayPeriode(curDate, 2);
+            weekCombo.getItems().add(comboText);
+        }
+        weekCombo.getSelectionModel().select(4);
+        hanldeEditWeek();
     }
 
     public void setStageAndSetupListeners(Stage stage){
@@ -36,8 +143,90 @@ public class ControllerDrivingLesson implements Initializable {
     }
 
     @FXML
+    private void handleEditStudent(){
+        String curStudent = student.getText();
+
+    }
+
+    @FXML
+    private void hanldeEditWeek() {
+        int curSel = weekCombo.getSelectionModel().getSelectedIndex();
+        int size = weekCombo.getItems().size();
+        if(curSel == size-1){
+            weekForward.setDisable(true);
+        }else
+            weekForward.setDisable(false);
+
+        if(curSel == 0){
+            weekBack.setDisable(true);
+        }else
+            weekBack.setDisable(false);
+
+        Date today = CalendarHelper.getCurrentDate();
+        Calendar todayCalendar = Calendar.getInstance();
+        todayCalendar.setTime(today);
+
+        mondayOfCurrentSelectedWeek = CalendarHelper.getDateAfterDayPeriode(mondayOfCurrentDate, curSel * 7);
+        Date curDate = mondayOfCurrentSelectedWeek;
+        Calendar weekCalendar = Calendar.getInstance();
+
+        weekCalendar.setTime(curDate);
+        if(weekCalendar.before(todayCalendar))
+            moColor = "lightgray";
+        else {
+            moColor = "";
+        }
+
+        tableMo.setText("Mo (" + weekCalendar.get(Calendar.DAY_OF_MONTH) + "." + (weekCalendar.get(Calendar.MONTH)+1) + ")");
+
+        curDate = CalendarHelper.getDateAfterDayPeriode(curDate, 1);
+        weekCalendar.setTime(curDate);
+        tableTu.setText("Di (" + weekCalendar.get(Calendar.DAY_OF_MONTH) + "." + (weekCalendar.get(Calendar.MONTH)+1) + ")");
+
+        curDate = CalendarHelper.getDateAfterDayPeriode(curDate, 1);
+        weekCalendar.setTime(curDate);
+        tableWe.setText("Mi (" + weekCalendar.get(Calendar.DAY_OF_MONTH) + "." + (weekCalendar.get(Calendar.MONTH)+1) + ")");
+
+        curDate = CalendarHelper.getDateAfterDayPeriode(curDate, 1);
+        weekCalendar.setTime(curDate);
+        tableTh.setText("Do (" + weekCalendar.get(Calendar.DAY_OF_MONTH) + "." + (weekCalendar.get(Calendar.MONTH)+1) + ")");
+
+        curDate = CalendarHelper.getDateAfterDayPeriode(curDate, 1);
+        weekCalendar.setTime(curDate);
+        tableFr.setText("Fr (" + weekCalendar.get(Calendar.DAY_OF_MONTH) + "." + (weekCalendar.get(Calendar.MONTH)+1) + ")");
+
+        curDate = CalendarHelper.getDateAfterDayPeriode(curDate, 1);
+        weekCalendar.setTime(curDate);
+        tableSa.setText("Sa (" + weekCalendar.get(Calendar.DAY_OF_MONTH) + "." + (weekCalendar.get(Calendar.MONTH)+1) + ")");
+
+    }
+
+    @FXML
+    private void hanldeWeakForward(){
+        int curSel = weekCombo.getSelectionModel().getSelectedIndex();
+        int size = weekCombo.getItems().size();
+        if(curSel == size-1){
+            return;
+        }
+        weekCombo.getSelectionModel().select(curSel+1);
+        hanldeEditWeek();
+    }
+
+    @FXML
+    private void hanldeWeakBackward(){
+        int curSel = weekCombo.getSelectionModel().getSelectedIndex();
+        int size = weekCombo.getItems().size();
+        if(curSel == 0){
+            return;
+        }
+        weekCombo.getSelectionModel().select(curSel-1);
+        hanldeEditWeek();
+    }
+
+    @FXML
     private void handleCancel(){
         ((Stage)stage.getOwner()).show();
         stage.close();
     }
+
 }

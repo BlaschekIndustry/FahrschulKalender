@@ -1,0 +1,33 @@
+/* edit cell appearance */
+
+/* If the padding is 0, then there's a grey area. If you set it to 2, then there won't be a great area.
+ * However if you use a border color, then the border requires its size, so the padding is set to 2 - 1 = 1.
+ * You have to toy around with the border. If necessary give it a width of 2 and make it the same color as the background color.
+ */
+.text-field-table-cell .text-field {
+   -fx-padding: 1;
+   -fx-border-color:red;
+   -fx-border-width:1;
+   -fx-background-color:yellow;
+ }
+.table-cell:focused {
+   -fx-padding: 0;
+}
+
+/* right-align the cell content in view mode */
+.table-cell {
+    -fx-alignment: CENTER-RIGHT;
+}
+/* right-align the cell content in edit mode */
+.text-field {
+    -fx-alignment: CENTER-RIGHT;
+}
+
+/* colorize background only of rows which have data */
+.table-row-cell:empty {
+    -fx-background-color: white;
+}
+
+.table-row-cell:empty .table-cell {
+    -fx-border-width: 0px;
+}

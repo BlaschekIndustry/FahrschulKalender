@@ -7,7 +7,10 @@ import general.LicenceType;
 import general.Vehicle;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
+
+import static general.LicenceType.XMLNameOfType;
 
 public class GoogleEvent {
     private static final String START_SEQUENZ = "#StartIntern";
@@ -72,6 +75,27 @@ public class GoogleEvent {
             vehicles.add(curVehicle);
         }
 
+    }
+
+    public String createTableString() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(startDate);
+
+        String tableString = "";
+        tableString += calendar.get(Calendar.HOUR) + ":";
+        tableString += calendar.get(Calendar.MINUTE) + "-";
+
+        calendar.setTime(endDate);
+
+        tableString += calendar.get(Calendar.HOUR) + ":";
+        tableString += calendar.get(Calendar.MINUTE);
+
+        tableString += "\n";
+        for(String curTeacher : teachers){
+            tableString += curTeacher + ",";
+        }
+        tableString += XMLNameOfType(licence);
+        return tableString;
     }
 
     public String getHeader() {

@@ -88,8 +88,6 @@ public class ControllerSettings implements Initializable {
         alert.getButtonTypes().setAll(buttonTypeYes, buttonTypeNo, buttonTypeCancel);
 
         Optional<ButtonType> result = alert.showAndWait();
-        if(result.isEmpty())
-            return 2;
         if (result.get() == buttonTypeYes) {
             return 0;
         } else if (result.get() == buttonTypeNo) {
@@ -102,6 +100,7 @@ public class ControllerSettings implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         //TODO echten Pfad anhand der Registry abfragen
+        fileManager = new SettingsFileManager("D:\\Java Projects\\FahrschulKalender\\src\\fileControl\\XmlVorlage.xml ");
         fileManager = new SettingsFileManager();
         fileManager.read();
 
@@ -412,8 +411,7 @@ public class ControllerSettings implements Initializable {
         alert.getButtonTypes().setAll(buttonTypeYes, buttonTypeNo);
 
         Optional<ButtonType> result = alert.showAndWait();
-        if(result.isEmpty())
-            return;
+
         if (result.get() == buttonTypeYes) {
             fileManager.getVehicles().remove(vehicleListView.getSelectionModel().getSelectedIndex());
             fileManager.write();
@@ -625,8 +623,6 @@ public class ControllerSettings implements Initializable {
         alert.getButtonTypes().setAll(buttonTypeYes, buttonTypeNo);
 
         Optional<ButtonType> result = alert.showAndWait();
-        if(result.isEmpty())
-            return;
         if (result.get() == buttonTypeYes) {
             fileManager.getDrivingTeachers().remove(drivingTeacherListView.getSelectionModel().getSelectedIndex());
             fileManager.write();
@@ -810,8 +806,6 @@ public class ControllerSettings implements Initializable {
         alert.getButtonTypes().setAll(buttonTypeYes, buttonTypeNo);
 
         Optional<ButtonType> result = alert.showAndWait();
-        if(result.isEmpty())
-            return;
         if (result.get() == buttonTypeYes) {
             fileManager.getUsers().remove(userListView.getSelectionModel().getSelectedIndex());
             fileManager.write();

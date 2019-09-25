@@ -1,0 +1,6 @@
+diff a/out/production/FahrschulKalendar/fileControl/XmlVorlage.xml b/out/production/FahrschulKalendar/fileControl/XmlVorlage.xml	(rejected hunks)
+@@ -0 +0 @@
+-<?xml version="1.0" encoding="UTF-8" standalone="no"?><settings><drivingTeachers><teacher><tName>Test1</tName><tWorkingHours>39</tWorkingHours><tLicence>A</tLicence><tLicence>B</tLicence></teacher><teacher><tName>Test32</tName><tWorkingHours>49</tWorkingHours><tLicence>A</tLicence><tLicence>D</tLicence></teacher><teacher><tName>Neuer Fahrlehrer</tName><tWorkingHours>45</tWorkingHours><tLicence>B</tLicence><tLicence>D</tLicence></teacher></drivingTeachers></settings>
+\ No newline at end of file
++<?xml version="1.0" encoding="UTF-8" standalone="no"?><settings><drivingTeachers><teacher><tName>Petra Schilling</tName><tWorkingHours>60</tWorkingHours><tLicence>A</tLicence><tLicence>B</tLicence><tLicence>C</tLicence><tLicence>D</tLicence></teacher></drivingTeachers></settings>
+\ No newline at end of file

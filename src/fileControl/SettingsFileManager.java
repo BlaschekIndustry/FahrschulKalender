@@ -22,7 +22,7 @@ public class SettingsFileManager extends FileReadWriteManager{
     private ArrayList<Vehicle> vehicles = new ArrayList<>();;
 
     public SettingsFileManager(){
-        this("C:\\Users\\blaschek\\IdeaProjects\\FahrschulKalendar\\src\\fileControl\\XmlVorlage6.xml");
+        this("D:\\Java Projects\\FahrschulKalender\\src\\fileControl\\XmlVorlage6.xml");
     }
 
     public SettingsFileManager(String fileName) {

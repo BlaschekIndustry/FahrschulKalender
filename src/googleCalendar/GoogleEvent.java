@@ -27,6 +27,13 @@ public class GoogleEvent {
     private ArrayList<String> teachers = new ArrayList<>();
     private ArrayList<String> vehicles = new ArrayList<>();
 
+    public GoogleEvent(String header, String description, Date startDate, Date endDate){
+        this.header = header;
+        this.description = description;
+        this.startDate = startDate;
+        this.endDate = endDate;
+    }
+
     public GoogleEvent(Event googleEvent){
         this.header = googleEvent.getSummary();
         this.description = googleEvent.getDescription();

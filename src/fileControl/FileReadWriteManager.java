@@ -23,7 +23,7 @@ public abstract class FileReadWriteManager {
         if(!inputFile.exists()) {
             ErrorDialogs.showWarningMessage("Die Datei: \"" + fileName + "\" existiert nicht!\nSie wird automatisch erzeugt.");
             try {
-                File xmlPreset = new File("C:\\Users\\blaschek\\IdeaProjects\\FahrschulKalendar\\src\\fileControl\\XmlVorlage.xml");//Todo Pfad anpassen
+                File xmlPreset = new File("src\\fileControl\\XmlVorlage.xml");//Todo Pfad anpassen
                 if(xmlPreset.exists())
                     Files.copy(xmlPreset.toPath(), inputFile.toPath());
                 inputFile.setWritable(true);

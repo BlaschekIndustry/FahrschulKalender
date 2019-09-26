@@ -11,16 +11,15 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
-import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.ListView;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.CheckBoxListCell;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import javafx.util.Callback;
 
 import java.net.URL;
+import java.sql.Time;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
 
@@ -29,12 +28,26 @@ public class ControllerOtherEvent implements Initializable {
     @FXML Button insertButton;
     @FXML ComboBox typeComboBox;
     @FXML ListView<String> listView;
-
+    @FXML Spinner<String> timeFrom;
+    @FXML Spinner<String> timeTo;
     private Stage stage;
     SettingsFileManager fileManager;
+    private String timeFromTime;
+    private String timeToTime;
+
+
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        timeToTime = "20:00";
+        timeFromTime = "08:00";
+
+        timerFromInitialize();
+        timerToInitialize();
+
+
+
+
         fileManager = new SettingsFileManager();
         fileManager.read();
 
@@ -94,4 +107,179 @@ public class ControllerOtherEvent implements Initializable {
         ((Stage)stage.getOwner()).show();
         stage.close();
     }
+
+
+    private String handleTimeFromUp(){
+        return "testup";
+    }
+
+    private String handleTimeFromDown(){
+        return "testdown";
+    }
+
+    private String handleTimeToUp(){
+        return"testUp";
+    }
+
+    private String handleTimeToDown(){
+        return"testDown";
+    }
+
+    private String timeToIncrease(String tTime){
+        Integer min;
+        Integer std;
+        DecimalFormat nmin = new DecimalFormat("00");
+
+        DecimalFormat nstd = new DecimalFormat("00");
+
+        min = Integer.parseInt(tTime.substring(3));
+        std = Integer.parseInt(tTime.substring(0,2));
+
+        if(min < 45){
+            min += 15;
+        }else{
+
+            std += 1;
+            min = 00;
+
+            if (std == 24){
+                std = 00;
+            }
+        }
+
+
+        tTime = nstd.format(std) + ":" + nmin.format(min);
+        timeToTime = tTime;
+
+        return tTime;
+    }
+
+    private String timeToDecrease(String tTime){
+        Integer min;
+        Integer std;
+        DecimalFormat nmin = new DecimalFormat("00");
+        DecimalFormat nstd = new DecimalFormat("00");
+
+        min = Integer.parseInt(tTime.substring(3));
+        std = Integer.parseInt(tTime.substring(0,2));
+
+        if(min > 0){
+            min -= 15;
+        }else{
+            if (std == 0){
+                std = 23;
+            }else{
+                std -= 1;
+            }
+
+            min = 45;
+
+        }
+
+
+        tTime = nstd.format(std) + ":" + nmin.format(min);
+        timeToTime = tTime;
+        return tTime;
+    }
+
+    private String timeFromIncrease(String tTime){
+        Integer min;
+        Integer std;
+        DecimalFormat nmin = new DecimalFormat("00");
+        DecimalFormat nstd = new DecimalFormat("00");
+
+        min = Integer.parseInt(tTime.substring(3));
+        std = Integer.parseInt(tTime.substring(0,2));
+
+        if(min < 45){
+            min += 15;
+        }else{
+
+            std += 1;
+            min = 0;
+
+            if (std == 24){
+                std = 0;
+            }
+        }
+
+
+        tTime = nstd.format(std) + ":" + nmin.format(min);
+        timeFromTime = tTime;
+
+        return tTime;
+    }
+
+    private String timeFromDecrease(String tTime){
+        Integer min;
+        Integer std;
+        DecimalFormat nmin = new DecimalFormat("00");
+        DecimalFormat nstd = new DecimalFormat("00");
+
+        min = Integer.parseInt(tTime.substring(3));
+        std = Integer.parseInt(tTime.substring(0,2));
+
+        if(min > 0){
+            min -= 15;
+        }else{
+            if (std == 00){
+                std = 23;
+            }else{
+                std -= 1;
+            }
+
+            min = 45;
+
+
+        }
+
+
+        tTime = nstd.format(std) + ":" + nmin.format(min);
+        timeFromTime = tTime;
+        return tTime;
+    }
+
+    private void timerFromInitialize(){
+        timeFrom.setPromptText("08:00");
+
+        // Value TimerFromFactory.
+        SpinnerValueFactory<String> valueTimerFromFactory = //
+                new SpinnerValueFactory<String>() {
+
+                    @Override
+                    public void decrement(int steps) {
+                        this.setValue(timeFromDecrease(timeFromTime));
+                    }
+
+                    @Override
+                    public void increment(int steps) {
+                        this.setValue(timeFromIncrease(timeFromTime));
+                    }
+                };
+
+        timeFrom.setValueFactory(valueTimerFromFactory);
+    }
+
+    private void timerToInitialize(){
+
+        timeTo.setPromptText(timeToTime);
+        // Value TimerToFactory.
+        SpinnerValueFactory<String> valueTimeToFactory = //
+                new SpinnerValueFactory<String>() {
+
+                    @Override
+                    public void decrement(int steps) {
+                        this.setValue(timeToDecrease(timeToTime));
+                    }
+
+                    @Override
+                    public void increment(int steps) {
+                        this.setValue(timeToIncrease(timeToTime));
+                    }
+                };
+
+        timeTo.setValueFactory(valueTimeToFactory);
+    }
+
+
 }

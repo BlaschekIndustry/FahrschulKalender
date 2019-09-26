@@ -3,6 +3,7 @@ package gui;
 import fileControl.SettingsFileManager;
 import general.DrivingTeacher;
 import general.LicenceType;
+import general.Vehicle;
 import googleCalendar.CalendarHelper;
 import googleCalendar.GoogleCalendar;
 import googleCalendar.GoogleEvent;
@@ -171,11 +172,48 @@ public class ControllerDrivingLesson implements Initializable {
         Date curDay = mondayOfCurrentSelectedWeek;
         for(int day = 0; day < 6; day++) {
             for (int hour = 0; hour < 13; hour++) {
-                getEventsAtTime(curDay, hour + 8);
+                ArrayList<GoogleEvent> allCurrentEvents = getEventsAtTime(curDay, hour + 8);
+
             }
             curDay = CalendarHelper.getDateAfterDayPeriode(curDay, 1);
         }
 
+    }
+
+    private GoogleEvent getBestLessonAtTime(ArrayList<GoogleEvent> eventsAtSameTime){
+        LicenceType licence = TypeOfXMLName(driverLicence.getSelectionModel().getSelectedItem());
+        ArrayList<DrivingTeacher> availableTeachers = new ArrayList<>();
+        ArrayList<Vehicle> availableVehicles = new ArrayList<>();
+
+        for(DrivingTeacher curTeacher : fileManager.getDrivingTeachers()){
+            for(LicenceType licenceType : curTeacher.getLicenceTypes()){
+                if(licenceType == licence)
+                    availableTeachers.add(new DrivingTeacher(curTeacher));
+            }
+        }
+
+        for(Vehicle curVehicle : fileManager.getVehicles()){
+            for(LicenceType licenceType : curVehicle.getLicenceTypes()){
+                if(licenceType == licence)
+                    availableVehicles.add(new Vehicle(curVehicle));
+            }
+        }
+
+        for(GoogleEvent curEvent : eventsAtSameTime){
+            for(String curTeacherName : curEvent.getTeachers()){
+                for(DrivingTeacher curTeacher : availableTeachers){
+                    if(curTeacherName.equals(curTeacher.getName()))
+                        availableTeachers.remove(curTeacher);
+                }
+            }
+
+            for(String curVehicleName : curEvent.getVehicles()){
+                //Todo Fahrzeuge entfernen
+            }
+        }
+        //GoogleEvent returnEvent = new GoogleEvent();
+        //for(    availableTeachers
+        return null;
     }
 
     private ArrayList<GoogleEvent> getEventsAtTime(Date day, int hour){

@@ -18,6 +18,10 @@ public class DrivingTeacher {
         licenceTypes.add(LicenceType.LICENCE_TYPE_B);
     }
 
+    public DrivingTeacher( DrivingTeacher teacher){
+        this(teacher.getName(), teacher.getWorkingHours(), teacher.getLicenceTypes());
+    }
+
     public DrivingTeacher(String name, int workingHours, ArrayList<LicenceType> licenceTypes) {
         this.name = name;
         this.workingHours = workingHours;

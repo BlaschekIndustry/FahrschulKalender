@@ -100,7 +100,7 @@ public class ControllerSettings implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         //TODO echten Pfad anhand der Registry abfragen
-        fileManager = new SettingsFileManager("D:\\Java Projects\\FahrschulKalender\\src\\fileControl\\XmlVorlage.xml ");
+        //fileManager = new SettingsFileManager("D:\\Java Projects\\FahrschulKalender\\src\\fileControl\\XmlVorlage.xml ");
         fileManager = new SettingsFileManager();
         fileManager.read();
 

@@ -18,16 +18,17 @@ import java.util.ArrayList;
 
 public class SettingsFileManager extends FileReadWriteManager{
     private ArrayList<DrivingTeacher> drivingTeachers = new ArrayList<>();
-    private ArrayList<User> users = new ArrayList<>();;
-    private ArrayList<Vehicle> vehicles = new ArrayList<>();;
+    private ArrayList<User> users = new ArrayList<>();
+    private ArrayList<Vehicle> vehicles = new ArrayList<>();
 
     public SettingsFileManager(){
-        this("D:\\Java Projects\\FahrschulKalender\\src\\fileControl\\XmlVorlage6.xml");
+        this("src\\fileControl\\XmlVorlage6.xml");
     }
 
     public SettingsFileManager(String fileName) {
         super(fileName);
     }
+
 
     @Override
     public void read() {

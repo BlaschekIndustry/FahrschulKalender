@@ -23,7 +23,9 @@ public class Vehicle {
         licenceTypes.add(LicenceType.LICENCE_TYPE_B);
     }
 
-
+    public Vehicle(Vehicle vehicle){
+        this(vehicle.name, vehicle.isExamPermit, vehicle.isTrailer, vehicle.isAutomatic, vehicle.licenceTypes);
+    }
 
     public Vehicle(String name, Boolean isExamPermit, Boolean isTrailer, Boolean isAutomatic, ArrayList<LicenceType> licenceTypes) {
         this.name = name;
